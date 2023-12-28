@@ -7,15 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F8FA4FE2B34685600E98856 /* logo-no-background.png in Resources */ = {isa = PBXBuildFile; fileRef = 1F8FA4FD2B34685600E98856 /* logo-no-background.png */; };
 		1FFA38D82B31AF6E00F4C00C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38D72B31AF6E00F4C00C /* AppDelegate.swift */; };
 		1FFA38DA2B31AF6E00F4C00C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38D92B31AF6E00F4C00C /* SceneDelegate.swift */; };
-		1FFA38DC2B31AF6E00F4C00C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38DB2B31AF6E00F4C00C /* ViewController.swift */; };
-		1FFA38DF2B31AF6E00F4C00C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FFA38DD2B31AF6E00F4C00C /* Main.storyboard */; };
 		1FFA38E12B31AF6F00F4C00C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FFA38E02B31AF6F00F4C00C /* Assets.xcassets */; };
 		1FFA38E42B31AF6F00F4C00C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FFA38E22B31AF6F00F4C00C /* LaunchScreen.storyboard */; };
 		1FFA38EF2B31AF6F00F4C00C /* StudentWatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38EE2B31AF6F00F4C00C /* StudentWatchTests.swift */; };
 		1FFA38F92B31AF6F00F4C00C /* StudentWatchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38F82B31AF6F00F4C00C /* StudentWatchUITests.swift */; };
 		1FFA38FB2B31AF6F00F4C00C /* StudentWatchUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38FA2B31AF6F00F4C00C /* StudentWatchUITestsLaunchTests.swift */; };
+		1FFA39082B31B14600F4C00C /* ClassOneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA39072B31B14600F4C00C /* ClassOneViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,11 +36,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1F18FEB72B3DF5110041B240 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1F18FEB82B3DF51D0041B240 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		1F8FA4FD2B34685600E98856 /* logo-no-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-no-background.png"; sourceTree = "<group>"; };
 		1FFA38D42B31AF6E00F4C00C /* StudentWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StudentWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FFA38D72B31AF6E00F4C00C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1FFA38D92B31AF6E00F4C00C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		1FFA38DB2B31AF6E00F4C00C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		1FFA38DE2B31AF6E00F4C00C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1FFA38E02B31AF6F00F4C00C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FFA38E32B31AF6F00F4C00C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1FFA38E52B31AF6F00F4C00C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -49,6 +50,7 @@
 		1FFA38F42B31AF6F00F4C00C /* StudentWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StudentWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FFA38F82B31AF6F00F4C00C /* StudentWatchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentWatchUITests.swift; sourceTree = "<group>"; };
 		1FFA38FA2B31AF6F00F4C00C /* StudentWatchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentWatchUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1FFA39072B31B14600F4C00C /* ClassOneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassOneViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,8 @@
 		1FFA38CB2B31AF6E00F4C00C = {
 			isa = PBXGroup;
 			children = (
+				1F18FEB72B3DF5110041B240 /* README.md */,
+				1F18FEB82B3DF51D0041B240 /* CHANGELOG.md */,
 				1FFA38D62B31AF6E00F4C00C /* StudentWatch */,
 				1FFA38ED2B31AF6F00F4C00C /* StudentWatchTests */,
 				1FFA38F72B31AF6F00F4C00C /* StudentWatchUITests */,
@@ -99,13 +103,13 @@
 		1FFA38D62B31AF6E00F4C00C /* StudentWatch */ = {
 			isa = PBXGroup;
 			children = (
-				1FFA38D72B31AF6E00F4C00C /* AppDelegate.swift */,
-				1FFA38D92B31AF6E00F4C00C /* SceneDelegate.swift */,
-				1FFA38DB2B31AF6E00F4C00C /* ViewController.swift */,
-				1FFA38DD2B31AF6E00F4C00C /* Main.storyboard */,
+				1F8FA4FD2B34685600E98856 /* logo-no-background.png */,
 				1FFA38E02B31AF6F00F4C00C /* Assets.xcassets */,
 				1FFA38E22B31AF6F00F4C00C /* LaunchScreen.storyboard */,
 				1FFA38E52B31AF6F00F4C00C /* Info.plist */,
+				1FFA39072B31B14600F4C00C /* ClassOneViewController.swift */,
+				1FFA38D72B31AF6E00F4C00C /* AppDelegate.swift */,
+				1FFA38D92B31AF6E00F4C00C /* SceneDelegate.swift */,
 			);
 			path = StudentWatch;
 			sourceTree = "<group>";
@@ -231,9 +235,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F8FA4FE2B34685600E98856 /* logo-no-background.png in Resources */,
 				1FFA38E42B31AF6F00F4C00C /* LaunchScreen.storyboard in Resources */,
 				1FFA38E12B31AF6F00F4C00C /* Assets.xcassets in Resources */,
-				1FFA38DF2B31AF6E00F4C00C /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,9 +262,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FFA38DC2B31AF6E00F4C00C /* ViewController.swift in Sources */,
 				1FFA38D82B31AF6E00F4C00C /* AppDelegate.swift in Sources */,
 				1FFA38DA2B31AF6E00F4C00C /* SceneDelegate.swift in Sources */,
+				1FFA39082B31B14600F4C00C /* ClassOneViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,14 +301,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1FFA38DD2B31AF6E00F4C00C /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1FFA38DE2B31AF6E00F4C00C /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		1FFA38E22B31AF6F00F4C00C /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -445,11 +441,14 @@
 				DEVELOPMENT_TEAM = NV57XZ3KBV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StudentWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "E-Monitor";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -457,9 +456,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.CanDuru.StudentWatch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -473,11 +475,14 @@
 				DEVELOPMENT_TEAM = NV57XZ3KBV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StudentWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "E-Monitor";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -485,9 +490,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.CanDuru.StudentWatch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
