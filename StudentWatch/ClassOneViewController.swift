@@ -1676,24 +1676,24 @@ class ClassViewController: UIViewController {
             
             
             //MARK: Table One Constraints
-            tableOneView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -600),
+            tableOneView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20),
             tableOneView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableOneView.widthAnchor.constraint(equalToConstant: 100),
             tableOneView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableOneLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableOneLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableOneLabel.topAnchor.constraint(equalTo: tableOneView.bottomAnchor, constant: -10),
-            tableOneLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableOneLabel.widthAnchor.constraint(equalToConstant: 225),
             tableOneLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableOneTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableOneTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableOneTimerLabel.topAnchor.constraint(equalTo: tableOneLabel.bottomAnchor, constant: -10),
-            tableOneTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableOneTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableOneTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableOneButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableOneButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableOneButton.topAnchor.constraint(equalTo: tableOneLabel.bottomAnchor, constant: -10),
-            tableOneButton.widthAnchor.constraint(equalToConstant: 250),
+            tableOneButton.widthAnchor.constraint(equalToConstant: 225),
             tableOneButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableOneTimerResetButton.rightAnchor.constraint(equalTo: tableOneTimerLabel.rightAnchor, constant: -5),
@@ -1701,19 +1701,19 @@ class ClassViewController: UIViewController {
             tableOneTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableOneTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableOne2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -500),
+            tableOne2View.leftAnchor.constraint(equalTo: tableOneView.rightAnchor, constant: 10),
             tableOne2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableOne2View.widthAnchor.constraint(equalToConstant: 100),
             tableOne2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableOne2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableOne2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableOne2TimerLabel.topAnchor.constraint(equalTo: tableOneButton.bottomAnchor, constant: -10),
-            tableOne2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableOne2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableOne2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableOne2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableOne2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableOne2Button.topAnchor.constraint(equalTo: tableOneButton.bottomAnchor, constant: 5),
-            tableOne2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableOne2Button.widthAnchor.constraint(equalToConstant: 225),
             tableOne2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableOne2TimerResetButton.rightAnchor.constraint(equalTo: tableOne2TimerLabel.rightAnchor, constant: -5),
@@ -1722,24 +1722,24 @@ class ClassViewController: UIViewController {
             tableOne2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Two Constraints
-            tableTwoView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -600),
+            tableTwoView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20),
             tableTwoView.topAnchor.constraint(equalTo: tableOne2Button.bottomAnchor, constant: 5),
             tableTwoView.widthAnchor.constraint(equalToConstant: 100),
             tableTwoView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTwoLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableTwoLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableTwoLabel.topAnchor.constraint(equalTo: tableTwoView.bottomAnchor, constant: -10),
-            tableTwoLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTwoLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwoLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableTwoTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableTwoTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableTwoTimerLabel.topAnchor.constraint(equalTo: tableTwoLabel.bottomAnchor, constant: -10),
-            tableTwoTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTwoTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwoTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTwoButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableTwoButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableTwoButton.topAnchor.constraint(equalTo: tableTwoLabel.bottomAnchor, constant: -10),
-            tableTwoButton.widthAnchor.constraint(equalToConstant: 250),
+            tableTwoButton.widthAnchor.constraint(equalToConstant: 225),
             tableTwoButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableTwoTimerResetButton.rightAnchor.constraint(equalTo: tableTwoTimerLabel.rightAnchor, constant: -5),
@@ -1747,19 +1747,19 @@ class ClassViewController: UIViewController {
             tableTwoTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableTwoTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableTwo2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -500),
+            tableTwo2View.leftAnchor.constraint(equalTo: tableTwoView.rightAnchor, constant: 10),
             tableTwo2View.topAnchor.constraint(equalTo: tableOne2Button.bottomAnchor, constant: 5),
             tableTwo2View.widthAnchor.constraint(equalToConstant: 100),
             tableTwo2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTwo2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableTwo2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableTwo2TimerLabel.topAnchor.constraint(equalTo: tableTwoButton.bottomAnchor, constant: 5),
-            tableTwo2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTwo2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwo2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTwo2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableTwo2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableTwo2Button.topAnchor.constraint(equalTo: tableTwoButton.bottomAnchor, constant: 5),
-            tableTwo2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableTwo2Button.widthAnchor.constraint(equalToConstant: 225),
             tableTwo2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableTwo2TimerResetButton.rightAnchor.constraint(equalTo: tableTwo2TimerLabel.rightAnchor, constant: -5),
@@ -1768,24 +1768,24 @@ class ClassViewController: UIViewController {
             tableTwo2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Three Constraints
-            tableThreeView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -600),
+            tableThreeView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20),
             tableThreeView.topAnchor.constraint(equalTo: tableTwo2TimerLabel.bottomAnchor, constant: 5),
             tableThreeView.widthAnchor.constraint(equalToConstant: 100),
             tableThreeView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableThreeLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableThreeLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableThreeLabel.topAnchor.constraint(equalTo: tableThreeView.bottomAnchor, constant: -10),
-            tableThreeLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableThreeLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThreeLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableThreeTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableThreeTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableThreeTimerLabel.topAnchor.constraint(equalTo: tableThreeLabel.bottomAnchor, constant: -10),
-            tableThreeTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableThreeTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThreeTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableThreeButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableThreeButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableThreeButton.topAnchor.constraint(equalTo: tableThreeLabel.bottomAnchor, constant: -10),
-            tableThreeButton.widthAnchor.constraint(equalToConstant: 250),
+            tableThreeButton.widthAnchor.constraint(equalToConstant: 225),
             tableThreeButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableThreeTimerResetButton.rightAnchor.constraint(equalTo: tableThreeTimerLabel.rightAnchor, constant: -5),
@@ -1793,19 +1793,19 @@ class ClassViewController: UIViewController {
             tableThreeTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableThreeTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableThree2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -500),
+            tableThree2View.leftAnchor.constraint(equalTo: tableOneView.rightAnchor, constant: 10),
             tableThree2View.topAnchor.constraint(equalTo: tableTwo2TimerLabel.bottomAnchor, constant: 5),
             tableThree2View.widthAnchor.constraint(equalToConstant: 100),
             tableThree2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableThree2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableThree2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableThree2TimerLabel.topAnchor.constraint(equalTo: tableThreeButton.bottomAnchor, constant: 5),
-            tableThree2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableThree2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThree2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableThree2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -550),
+            tableThree2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
             tableThree2Button.topAnchor.constraint(equalTo: tableThreeButton.bottomAnchor, constant: 5),
-            tableThree2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableThree2Button.widthAnchor.constraint(equalToConstant: 225),
             tableThree2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableThree2TimerResetButton.rightAnchor.constraint(equalTo: tableThree2TimerLabel.rightAnchor, constant: -5),
@@ -1814,24 +1814,24 @@ class ClassViewController: UIViewController {
             tableThree2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Four Constraints
-            tableFourView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -300),
+            tableFourView.leftAnchor.constraint(equalTo: tableOne2View.rightAnchor, constant: 50),
             tableFourView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableFourView.widthAnchor.constraint(equalToConstant: 100),
             tableFourView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFourLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFourLabel.centerXAnchor.constraint(equalTo: tableFourView.leftAnchor, constant: 105),
             tableFourLabel.topAnchor.constraint(equalTo: tableFourView.bottomAnchor, constant: -10),
-            tableFourLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFourLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFourLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableFourTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFourTimerLabel.centerXAnchor.constraint(equalTo: tableFourView.leftAnchor, constant: 105),
             tableFourTimerLabel.topAnchor.constraint(equalTo: tableFourLabel.bottomAnchor, constant: -10),
-            tableFourTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFourTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFourTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFourButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFourButton.centerXAnchor.constraint(equalTo: tableFourView.leftAnchor, constant: 105),
             tableFourButton.topAnchor.constraint(equalTo: tableFourLabel.bottomAnchor, constant: -10),
-            tableFourButton.widthAnchor.constraint(equalToConstant: 250),
+            tableFourButton.widthAnchor.constraint(equalToConstant: 225),
             tableFourButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableFourTimerResetButton.rightAnchor.constraint(equalTo: tableFourTimerLabel.rightAnchor, constant: -5),
@@ -1839,19 +1839,19 @@ class ClassViewController: UIViewController {
             tableFourTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableFourTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableFour2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -200),
+            tableFour2View.leftAnchor.constraint(equalTo: tableFourView.rightAnchor, constant: 10),
             tableFour2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableFour2View.widthAnchor.constraint(equalToConstant: 100),
             tableFour2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFour2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFour2TimerLabel.centerXAnchor.constraint(equalTo: tableFourView.leftAnchor, constant: 105),
             tableFour2TimerLabel.topAnchor.constraint(equalTo: tableFourButton.bottomAnchor, constant: 5),
-            tableFour2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFour2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFour2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFour2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFour2Button.centerXAnchor.constraint(equalTo: tableFourView.leftAnchor, constant: 105),
             tableFour2Button.topAnchor.constraint(equalTo: tableFourButton.bottomAnchor, constant: 5),
-            tableFour2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableFour2Button.widthAnchor.constraint(equalToConstant: 225),
             tableFour2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableFour2TimerResetButton.rightAnchor.constraint(equalTo: tableFour2TimerLabel.rightAnchor, constant: -5),
@@ -1860,24 +1860,24 @@ class ClassViewController: UIViewController {
             tableFour2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Five Constraints
-            tableFiveView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -300),
+            tableFiveView.leftAnchor.constraint(equalTo: tableTwo2View.rightAnchor, constant: 50),
             tableFiveView.topAnchor.constraint(equalTo: tableFour2Button.bottomAnchor, constant: 5),
             tableFiveView.widthAnchor.constraint(equalToConstant: 100),
             tableFiveView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFiveLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFiveLabel.centerXAnchor.constraint(equalTo: tableFiveView.leftAnchor, constant: 105),
             tableFiveLabel.topAnchor.constraint(equalTo: tableFiveView.bottomAnchor, constant: -10),
-            tableFiveLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFiveLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFiveLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableFiveTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFiveTimerLabel.centerXAnchor.constraint(equalTo: tableFiveView.leftAnchor, constant: 105),
             tableFiveTimerLabel.topAnchor.constraint(equalTo: tableFiveLabel.bottomAnchor, constant: -10),
-            tableFiveTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFiveTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFiveTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFiveButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFiveButton.centerXAnchor.constraint(equalTo: tableFiveView.leftAnchor, constant: 105),
             tableFiveButton.topAnchor.constraint(equalTo: tableFiveLabel.bottomAnchor, constant: -10),
-            tableFiveButton.widthAnchor.constraint(equalToConstant: 250),
+            tableFiveButton.widthAnchor.constraint(equalToConstant: 225),
             tableFiveButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableFiveTimerResetButton.rightAnchor.constraint(equalTo: tableFiveTimerLabel.rightAnchor, constant: -5),
@@ -1885,19 +1885,19 @@ class ClassViewController: UIViewController {
             tableFiveTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableFiveTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableFive2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -200),
+            tableFive2View.leftAnchor.constraint(equalTo: tableFiveView.rightAnchor, constant: 10),
             tableFive2View.topAnchor.constraint(equalTo: tableFour2Button.bottomAnchor, constant: 5),
             tableFive2View.widthAnchor.constraint(equalToConstant: 100),
             tableFive2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFive2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFive2TimerLabel.centerXAnchor.constraint(equalTo: tableFiveView.leftAnchor, constant: 105),
             tableFive2TimerLabel.topAnchor.constraint(equalTo: tableFiveButton.bottomAnchor, constant: 5),
-            tableFive2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFive2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFive2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFive2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableFive2Button.centerXAnchor.constraint(equalTo: tableFiveView.leftAnchor, constant: 105),
             tableFive2Button.topAnchor.constraint(equalTo: tableFiveButton.bottomAnchor, constant: 5),
-            tableFive2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableFive2Button.widthAnchor.constraint(equalToConstant: 225),
             tableFive2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableFive2TimerResetButton.rightAnchor.constraint(equalTo: tableFive2TimerLabel.rightAnchor, constant: -5),
@@ -1906,24 +1906,24 @@ class ClassViewController: UIViewController {
             tableFive2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Six Constraints
-            tableSixView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -300),
+            tableSixView.leftAnchor.constraint(equalTo: tableThree2View.rightAnchor, constant: 50),
             tableSixView.topAnchor.constraint(equalTo: tableFive2Button.bottomAnchor, constant: 60),
             tableSixView.widthAnchor.constraint(equalToConstant: 100),
             tableSixView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableSixLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSixLabel.centerXAnchor.constraint(equalTo: tableSixView.leftAnchor, constant: 105),
             tableSixLabel.topAnchor.constraint(equalTo: tableSixView.bottomAnchor, constant: -10),
-            tableSixLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSixLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSixLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableSixTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSixTimerLabel.centerXAnchor.constraint(equalTo: tableSixView.leftAnchor, constant: 105),
             tableSixTimerLabel.topAnchor.constraint(equalTo: tableSixLabel.bottomAnchor, constant: -10),
-            tableSixTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSixTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSixTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSixButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSixButton.centerXAnchor.constraint(equalTo: tableSixView.leftAnchor, constant: 105),
             tableSixButton.topAnchor.constraint(equalTo: tableSixLabel.bottomAnchor, constant: -10),
-            tableSixButton.widthAnchor.constraint(equalToConstant: 250),
+            tableSixButton.widthAnchor.constraint(equalToConstant: 225),
             tableSixButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableSixTimerResetButton.rightAnchor.constraint(equalTo: tableSixTimerLabel.rightAnchor, constant: -5),
@@ -1931,19 +1931,19 @@ class ClassViewController: UIViewController {
             tableSixTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableSixTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableSix2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -200),
+            tableSix2View.leftAnchor.constraint(equalTo: tableSixView.rightAnchor, constant: 10),
             tableSix2View.topAnchor.constraint(equalTo: tableFive2Button.bottomAnchor, constant: 60),
             tableSix2View.widthAnchor.constraint(equalToConstant: 100),
             tableSix2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableSix2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSix2TimerLabel.centerXAnchor.constraint(equalTo: tableSixView.leftAnchor, constant: 105),
             tableSix2TimerLabel.topAnchor.constraint(equalTo: tableSixButton.bottomAnchor, constant: 5),
-            tableSix2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSix2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSix2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSix2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSix2Button.centerXAnchor.constraint(equalTo: tableSixView.leftAnchor, constant: 105),
             tableSix2Button.topAnchor.constraint(equalTo: tableSixButton.bottomAnchor, constant: 5),
-            tableSix2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableSix2Button.widthAnchor.constraint(equalToConstant: 225),
             tableSix2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableSix2TimerResetButton.rightAnchor.constraint(equalTo: tableSix2TimerLabel.rightAnchor, constant: -5),
@@ -1952,24 +1952,24 @@ class ClassViewController: UIViewController {
             tableSix2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Seven Constraints
-            tableSevenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -300),
+            tableSevenView.leftAnchor.constraint(equalTo: tableThree2View.rightAnchor, constant: 50),
             tableSevenView.topAnchor.constraint(equalTo: tableSix2Button.bottomAnchor, constant: 5),
             tableSevenView.widthAnchor.constraint(equalToConstant: 100),
             tableSevenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableSevenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSevenLabel.centerXAnchor.constraint(equalTo: tableSevenView.leftAnchor, constant: 105),
             tableSevenLabel.topAnchor.constraint(equalTo: tableSevenView.bottomAnchor, constant: -10),
-            tableSevenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSevenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSevenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableSevenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSevenTimerLabel.centerXAnchor.constraint(equalTo: tableSevenView.leftAnchor, constant: 105),
             tableSevenTimerLabel.topAnchor.constraint(equalTo: tableSevenLabel.bottomAnchor, constant: -10),
-            tableSevenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSevenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSevenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSevenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSevenButton.centerXAnchor.constraint(equalTo: tableSevenView.leftAnchor, constant: 105),
             tableSevenButton.topAnchor.constraint(equalTo: tableSevenLabel.bottomAnchor, constant: -10),
-            tableSevenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableSevenButton.widthAnchor.constraint(equalToConstant: 225),
             tableSevenButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableSevenTimerResetButton.rightAnchor.constraint(equalTo: tableSevenTimerLabel.rightAnchor, constant: -5),
@@ -1977,19 +1977,19 @@ class ClassViewController: UIViewController {
             tableSevenTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableSevenTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableSeven2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -200),
+            tableSeven2View.leftAnchor.constraint(equalTo: tableSevenView.rightAnchor, constant: 10),
             tableSeven2View.topAnchor.constraint(equalTo: tableSix2Button.bottomAnchor, constant: 5),
             tableSeven2View.widthAnchor.constraint(equalToConstant: 100),
             tableSeven2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableSeven2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSeven2TimerLabel.centerXAnchor.constraint(equalTo: tableSevenView.leftAnchor, constant: 105),
             tableSeven2TimerLabel.topAnchor.constraint(equalTo: tableSevenButton.bottomAnchor, constant: 5),
-            tableSeven2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSeven2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSeven2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSeven2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableSeven2Button.centerXAnchor.constraint(equalTo: tableSevenView.leftAnchor, constant: 105),
             tableSeven2Button.topAnchor.constraint(equalTo: tableSevenButton.bottomAnchor, constant: 5),
-            tableSeven2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableSeven2Button.widthAnchor.constraint(equalToConstant: 225),
             tableSeven2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableSeven2TimerResetButton.rightAnchor.constraint(equalTo: tableSeven2TimerLabel.rightAnchor, constant: -5),
@@ -1998,24 +1998,24 @@ class ClassViewController: UIViewController {
             tableSeven2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Eight Constraints
-            tableEightView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -300),
+            tableEightView.leftAnchor.constraint(equalTo: tableThree2View.rightAnchor, constant: 50),
             tableEightView.topAnchor.constraint(equalTo: tableSeven2Button.bottomAnchor, constant: 5),
             tableEightView.widthAnchor.constraint(equalToConstant: 100),
             tableEightView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableEightLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableEightLabel.centerXAnchor.constraint(equalTo: tableEightView.leftAnchor, constant: 105),
             tableEightLabel.topAnchor.constraint(equalTo: tableEightView.bottomAnchor, constant: -10),
-            tableEightLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableEightLabel.widthAnchor.constraint(equalToConstant: 225),
             tableEightLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableEightTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableEightTimerLabel.centerXAnchor.constraint(equalTo: tableEightView.leftAnchor, constant: 105),
             tableEightTimerLabel.topAnchor.constraint(equalTo: tableEightLabel.bottomAnchor, constant: -10),
-            tableEightTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableEightTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableEightTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableEightButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableEightButton.centerXAnchor.constraint(equalTo: tableEightView.leftAnchor, constant: 105),
             tableEightButton.topAnchor.constraint(equalTo: tableEightLabel.bottomAnchor, constant: -10),
-            tableEightButton.widthAnchor.constraint(equalToConstant: 250),
+            tableEightButton.widthAnchor.constraint(equalToConstant: 225),
             tableEightButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableEightTimerResetButton.rightAnchor.constraint(equalTo: tableEightTimerLabel.rightAnchor, constant: -5),
@@ -2023,19 +2023,19 @@ class ClassViewController: UIViewController {
             tableEightTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableEightTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableEight2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -200),
+            tableEight2View.leftAnchor.constraint(equalTo: tableEightView.rightAnchor, constant: 10),
             tableEight2View.topAnchor.constraint(equalTo: tableSeven2Button.bottomAnchor, constant: 5),
             tableEight2View.widthAnchor.constraint(equalToConstant: 100),
             tableEight2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableEight2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableEight2TimerLabel.centerXAnchor.constraint(equalTo: tableEightView.leftAnchor, constant: 105),
             tableEight2TimerLabel.topAnchor.constraint(equalTo: tableEightButton.bottomAnchor, constant: 5),
-            tableEight2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableEight2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableEight2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableEight2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: -250),
+            tableEight2Button.centerXAnchor.constraint(equalTo: tableEightView.leftAnchor, constant: 105),
             tableEight2Button.topAnchor.constraint(equalTo: tableEightButton.bottomAnchor, constant: 5),
-            tableEight2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableEight2Button.widthAnchor.constraint(equalToConstant: 225),
             tableEight2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableEight2TimerResetButton.rightAnchor.constraint(equalTo: tableEight2TimerLabel.rightAnchor, constant: -5),
@@ -2044,24 +2044,24 @@ class ClassViewController: UIViewController {
             tableEight2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Nine Constraints
-            tableNineView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 600),
+            tableNineView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
             tableNineView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableNineView.widthAnchor.constraint(equalToConstant: 100),
             tableNineView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableNineLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableNineLabel.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableNineLabel.topAnchor.constraint(equalTo: tableNineView.bottomAnchor, constant: -10),
-            tableNineLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableNineLabel.widthAnchor.constraint(equalToConstant: 225),
             tableNineLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableNineTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableNineTimerLabel.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableNineTimerLabel.topAnchor.constraint(equalTo: tableNineLabel.bottomAnchor, constant: -10),
-            tableNineTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableNineTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableNineTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableNineButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableNineButton.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableNineButton.topAnchor.constraint(equalTo: tableNineLabel.bottomAnchor, constant: -10),
-            tableNineButton.widthAnchor.constraint(equalToConstant: 250),
+            tableNineButton.widthAnchor.constraint(equalToConstant: 225),
             tableNineButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableNineTimerResetButton.rightAnchor.constraint(equalTo: tableNineTimerLabel.rightAnchor, constant: -5),
@@ -2069,19 +2069,19 @@ class ClassViewController: UIViewController {
             tableNineTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableNineTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableNine2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 500),
+            tableNine2View.rightAnchor.constraint(equalTo: tableNineView.leftAnchor, constant: -10),
             tableNine2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableNine2View.widthAnchor.constraint(equalToConstant: 100),
             tableNine2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableNine2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableNine2TimerLabel.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableNine2TimerLabel.topAnchor.constraint(equalTo: tableNineButton.bottomAnchor, constant: 5),
-            tableNine2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableNine2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableNine2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableNine2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableNine2Button.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableNine2Button.topAnchor.constraint(equalTo: tableNineButton.bottomAnchor, constant: 5),
-            tableNine2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableNine2Button.widthAnchor.constraint(equalToConstant: 225),
             tableNine2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableNine2TimerResetButton.rightAnchor.constraint(equalTo: tableNine2TimerLabel.rightAnchor, constant: -5),
@@ -2090,24 +2090,24 @@ class ClassViewController: UIViewController {
             tableNine2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Ten Constraints
-            tableTenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 600),
+            tableTenView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
             tableTenView.topAnchor.constraint(equalTo: tableNine2Button.bottomAnchor, constant: 5),
             tableTenView.widthAnchor.constraint(equalToConstant: 100),
             tableTenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableTenLabel.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableTenLabel.topAnchor.constraint(equalTo: tableTenView.bottomAnchor, constant: -10),
-            tableTenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableTenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableTenTimerLabel.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableTenTimerLabel.topAnchor.constraint(equalTo: tableTenLabel.bottomAnchor, constant: -10),
-            tableTenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableTenButton.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableTenButton.topAnchor.constraint(equalTo: tableTenLabel.bottomAnchor, constant: -10),
-            tableTenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableTenButton.widthAnchor.constraint(equalToConstant: 225),
             tableTenButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableTenTimerResetButton.rightAnchor.constraint(equalTo: tableTenTimerLabel.rightAnchor, constant: -5),
@@ -2115,19 +2115,19 @@ class ClassViewController: UIViewController {
             tableTenTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableTenTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableTen2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 500),
+            tableTen2View.rightAnchor.constraint(equalTo: tableTenView.leftAnchor, constant: -10),
             tableTen2View.topAnchor.constraint(equalTo: tableNine2Button.bottomAnchor, constant: 5),
             tableTen2View.widthAnchor.constraint(equalToConstant: 100),
             tableTen2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTen2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableTen2TimerLabel.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableTen2TimerLabel.topAnchor.constraint(equalTo: tableTenButton.bottomAnchor, constant: 5),
-            tableTen2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTen2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTen2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTen2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableTen2Button.centerXAnchor.constraint(equalTo: tableNineView.rightAnchor, constant: -105),
             tableTen2Button.topAnchor.constraint(equalTo: tableTenButton.bottomAnchor, constant: 5),
-            tableTen2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableTen2Button.widthAnchor.constraint(equalToConstant: 225),
             tableTen2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableTen2TimerResetButton.rightAnchor.constraint(equalTo: tableTen2TimerLabel.rightAnchor, constant: -5),
@@ -2136,24 +2136,24 @@ class ClassViewController: UIViewController {
             tableTen2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Eleven Constraints
-            tableElevenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 600),
+            tableElevenView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
             tableElevenView.topAnchor.constraint(equalTo: tableTen2Button.bottomAnchor, constant: 5),
             tableElevenView.widthAnchor.constraint(equalToConstant: 100),
             tableElevenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableElevenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableElevenLabel.centerXAnchor.constraint(equalTo: tableElevenView.rightAnchor, constant: -105),
             tableElevenLabel.topAnchor.constraint(equalTo: tableElevenView.bottomAnchor, constant: -10),
-            tableElevenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableElevenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableElevenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableElevenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableElevenTimerLabel.centerXAnchor.constraint(equalTo: tableElevenView.rightAnchor, constant: -105),
             tableElevenTimerLabel.topAnchor.constraint(equalTo: tableElevenLabel.bottomAnchor, constant: -10),
-            tableElevenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableElevenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableElevenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableElevenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableElevenButton.centerXAnchor.constraint(equalTo: tableElevenView.rightAnchor, constant: -105),
             tableElevenButton.topAnchor.constraint(equalTo: tableElevenLabel.bottomAnchor, constant: -10),
-            tableElevenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableElevenButton.widthAnchor.constraint(equalToConstant: 225),
             tableElevenButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableElevenTimerResetButton.rightAnchor.constraint(equalTo: tableElevenTimerLabel.rightAnchor, constant: -5),
@@ -2161,19 +2161,19 @@ class ClassViewController: UIViewController {
             tableElevenTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableElevenTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableEleven2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 500),
+            tableEleven2View.rightAnchor.constraint(equalTo: tableElevenView.leftAnchor, constant: -10),
             tableEleven2View.topAnchor.constraint(equalTo: tableTen2Button.bottomAnchor, constant: 5),
             tableEleven2View.widthAnchor.constraint(equalToConstant: 100),
             tableEleven2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableEleven2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableEleven2TimerLabel.centerXAnchor.constraint(equalTo: tableElevenView.rightAnchor, constant: -105),
             tableEleven2TimerLabel.topAnchor.constraint(equalTo: tableElevenButton.bottomAnchor, constant: 5),
-            tableEleven2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableEleven2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableEleven2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableEleven2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 550),
+            tableEleven2Button.centerXAnchor.constraint(equalTo: tableElevenView.rightAnchor, constant: -105),
             tableEleven2Button.topAnchor.constraint(equalTo: tableElevenButton.bottomAnchor, constant: 5),
-            tableEleven2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableEleven2Button.widthAnchor.constraint(equalToConstant: 225),
             tableEleven2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableEleven2TimerResetButton.rightAnchor.constraint(equalTo: tableEleven2TimerLabel.rightAnchor, constant: -5),
@@ -2182,24 +2182,24 @@ class ClassViewController: UIViewController {
             tableEleven2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Twelve Constraints
-            tableTwelveView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 300),
+            tableTwelveView.rightAnchor.constraint(equalTo: tableNine2View.leftAnchor, constant: -50),
             tableTwelveView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableTwelveView.widthAnchor.constraint(equalToConstant: 100),
             tableTwelveView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTwelveLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableTwelveLabel.centerXAnchor.constraint(equalTo: tableTwelveView.rightAnchor, constant: -105),
             tableTwelveLabel.topAnchor.constraint(equalTo: tableTwelveView.bottomAnchor, constant: -10),
-            tableTwelveLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTwelveLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwelveLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableTwelveTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableTwelveTimerLabel.centerXAnchor.constraint(equalTo: tableTwelveView.rightAnchor, constant: -105),
             tableTwelveTimerLabel.topAnchor.constraint(equalTo: tableTwelveLabel.bottomAnchor, constant: -10),
-            tableTwelveTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTwelveTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwelveTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTwelveButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableTwelveButton.centerXAnchor.constraint(equalTo: tableTwelveView.rightAnchor, constant: -105),
             tableTwelveButton.topAnchor.constraint(equalTo: tableTwelveLabel.bottomAnchor, constant: -10),
-            tableTwelveButton.widthAnchor.constraint(equalToConstant: 250),
+            tableTwelveButton.widthAnchor.constraint(equalToConstant: 225),
             tableTwelveButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableTwelveTimerResetButton.rightAnchor.constraint(equalTo: tableTwelveTimerLabel.rightAnchor, constant: -5),
@@ -2207,19 +2207,19 @@ class ClassViewController: UIViewController {
             tableTwelveTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableTwelveTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableTwelve2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 200),
+            tableTwelve2View.rightAnchor.constraint(equalTo: tableTwelveView.leftAnchor, constant: -10),
             tableTwelve2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
             tableTwelve2View.widthAnchor.constraint(equalToConstant: 100),
             tableTwelve2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTwelve2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableTwelve2TimerLabel.centerXAnchor.constraint(equalTo: tableTwelveView.rightAnchor, constant: -105),
             tableTwelve2TimerLabel.topAnchor.constraint(equalTo: tableTwelveButton.bottomAnchor, constant: 5),
-            tableTwelve2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableTwelve2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwelve2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTwelve2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableTwelve2Button.centerXAnchor.constraint(equalTo: tableTwelveView.rightAnchor, constant: -105),
             tableTwelve2Button.topAnchor.constraint(equalTo: tableTwelveButton.bottomAnchor, constant: 5),
-            tableTwelve2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableTwelve2Button.widthAnchor.constraint(equalToConstant: 225),
             tableTwelve2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableTwelve2TimerResetButton.rightAnchor.constraint(equalTo: tableTwelve2TimerLabel.rightAnchor, constant: -5),
@@ -2228,24 +2228,24 @@ class ClassViewController: UIViewController {
             tableTwelve2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Thirteen Constraints
-            tableThirteenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 300),
+            tableThirteenView.rightAnchor.constraint(equalTo: tableTen2View.leftAnchor, constant: -50),
             tableThirteenView.topAnchor.constraint(equalTo: tableTwelve2Button.bottomAnchor, constant: 5),
             tableThirteenView.widthAnchor.constraint(equalToConstant: 100),
             tableThirteenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableThirteenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableThirteenLabel.centerXAnchor.constraint(equalTo: tableThirteenView.rightAnchor, constant: -105),
             tableThirteenLabel.topAnchor.constraint(equalTo: tableThirteenView.bottomAnchor, constant: -10),
-            tableThirteenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableThirteenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThirteenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableThirteenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableThirteenTimerLabel.centerXAnchor.constraint(equalTo: tableThirteenView.rightAnchor, constant: -105),
             tableThirteenTimerLabel.topAnchor.constraint(equalTo: tableThirteenLabel.bottomAnchor, constant: -10),
-            tableThirteenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableThirteenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThirteenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableThirteenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableThirteenButton.centerXAnchor.constraint(equalTo: tableThirteenView.rightAnchor, constant: -105),
             tableThirteenButton.topAnchor.constraint(equalTo: tableThirteenLabel.bottomAnchor, constant: -10),
-            tableThirteenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableThirteenButton.widthAnchor.constraint(equalToConstant: 225),
             tableThirteenButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableThirteenTimerResetButton.rightAnchor.constraint(equalTo: tableThirteenTimerLabel.rightAnchor, constant: -5),
@@ -2253,19 +2253,19 @@ class ClassViewController: UIViewController {
             tableThirteenTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableThirteenTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableThirteen2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 200),
+            tableThirteen2View.rightAnchor.constraint(equalTo: tableThirteenView.leftAnchor, constant: -10),
             tableThirteen2View.topAnchor.constraint(equalTo: tableTwelve2Button.bottomAnchor, constant: 5),
             tableThirteen2View.widthAnchor.constraint(equalToConstant: 100),
             tableThirteen2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableThirteen2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableThirteen2TimerLabel.centerXAnchor.constraint(equalTo: tableThirteenView.rightAnchor, constant: -105),
             tableThirteen2TimerLabel.topAnchor.constraint(equalTo: tableThirteenButton.bottomAnchor, constant: 5),
-            tableThirteen2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableThirteen2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThirteen2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableThirteen2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableThirteen2Button.centerXAnchor.constraint(equalTo: tableThirteenView.rightAnchor, constant: -105),
             tableThirteen2Button.topAnchor.constraint(equalTo: tableThirteenButton.bottomAnchor, constant: 5),
-            tableThirteen2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableThirteen2Button.widthAnchor.constraint(equalToConstant: 225),
             tableThirteen2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableThirteen2TimerResetButton.rightAnchor.constraint(equalTo: tableThirteen2TimerLabel.rightAnchor, constant: -5),
@@ -2274,24 +2274,24 @@ class ClassViewController: UIViewController {
             tableThirteen2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Fourteen Constraints
-            tableFourteenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 300),
+            tableFourteenView.rightAnchor.constraint(equalTo: tableEleven2View.leftAnchor, constant: -50),
             tableFourteenView.topAnchor.constraint(equalTo: tableThirteen2Button.bottomAnchor, constant: 60),
             tableFourteenView.widthAnchor.constraint(equalToConstant: 100),
             tableFourteenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFourteenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFourteenLabel.centerXAnchor.constraint(equalTo: tableFourteenView.rightAnchor, constant: -105),
             tableFourteenLabel.topAnchor.constraint(equalTo: tableFourteenView.bottomAnchor, constant: -10),
-            tableFourteenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFourteenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFourteenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableFourteenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFourteenTimerLabel.centerXAnchor.constraint(equalTo: tableFourteenView.rightAnchor, constant: -105),
             tableFourteenTimerLabel.topAnchor.constraint(equalTo: tableFourteenLabel.bottomAnchor, constant: -10),
-            tableFourteenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFourteenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFourteenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFourteenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFourteenButton.centerXAnchor.constraint(equalTo: tableFourteenView.rightAnchor, constant: -105),
             tableFourteenButton.topAnchor.constraint(equalTo: tableFourteenLabel.bottomAnchor, constant: -10),
-            tableFourteenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableFourteenButton.widthAnchor.constraint(equalToConstant: 225),
             tableFourteenButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableFourteenTimerResetButton.rightAnchor.constraint(equalTo: tableFourteenTimerLabel.rightAnchor, constant: -5),
@@ -2299,19 +2299,19 @@ class ClassViewController: UIViewController {
             tableFourteenTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableFourteenTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableFourteen2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 200),
+            tableFourteen2View.rightAnchor.constraint(equalTo: tableFourteenView.leftAnchor, constant: -10),
             tableFourteen2View.topAnchor.constraint(equalTo: tableThirteen2Button.bottomAnchor, constant: 60),
             tableFourteen2View.widthAnchor.constraint(equalToConstant: 100),
             tableFourteen2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFourteen2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFourteen2TimerLabel.centerXAnchor.constraint(equalTo: tableFourteenView.rightAnchor, constant: -105),
             tableFourteen2TimerLabel.topAnchor.constraint(equalTo: tableFourteenButton.bottomAnchor, constant: 5),
-            tableFourteen2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFourteen2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFourteen2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFourteen2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFourteen2Button.centerXAnchor.constraint(equalTo: tableFourteenView.rightAnchor, constant: -105),
             tableFourteen2Button.topAnchor.constraint(equalTo: tableFourteenButton.bottomAnchor, constant: 5),
-            tableFourteen2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableFourteen2Button.widthAnchor.constraint(equalToConstant: 225),
             tableFourteen2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableFourteen2TimerResetButton.rightAnchor.constraint(equalTo: tableFourteen2TimerLabel.rightAnchor, constant: -5),
@@ -2320,24 +2320,24 @@ class ClassViewController: UIViewController {
             tableFourteen2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Fifteen Constraints
-            tableFifteenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 300),
+            tableFifteenView.rightAnchor.constraint(equalTo: tableEleven2View.leftAnchor, constant: -50),
             tableFifteenView.topAnchor.constraint(equalTo: tableFourteen2Button.bottomAnchor, constant: 5),
             tableFifteenView.widthAnchor.constraint(equalToConstant: 100),
             tableFifteenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFifteenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFifteenLabel.centerXAnchor.constraint(equalTo: tableFifteenView.rightAnchor, constant: -105),
             tableFifteenLabel.topAnchor.constraint(equalTo: tableFifteenView.bottomAnchor, constant: -10),
-            tableFifteenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFifteenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFifteenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableFifteenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFifteenTimerLabel.centerXAnchor.constraint(equalTo: tableFifteenView.rightAnchor, constant: -105),
             tableFifteenTimerLabel.topAnchor.constraint(equalTo: tableFifteenLabel.bottomAnchor, constant: -10),
-            tableFifteenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFifteenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFifteenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFifteenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFifteenButton.centerXAnchor.constraint(equalTo: tableFifteenView.rightAnchor, constant: -105),
             tableFifteenButton.topAnchor.constraint(equalTo: tableFifteenLabel.bottomAnchor, constant: -10),
-            tableFifteenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableFifteenButton.widthAnchor.constraint(equalToConstant: 225),
             tableFifteenButton.heightAnchor.constraint(equalToConstant: 25),
             
             tableFifteenTimerResetButton.rightAnchor.constraint(equalTo: tableFifteenTimerLabel.rightAnchor, constant: -5),
@@ -2345,19 +2345,19 @@ class ClassViewController: UIViewController {
             tableFifteenTimerResetButton.widthAnchor.constraint(equalToConstant: 20),
             tableFifteenTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
-            tableFifteen2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 200),
+            tableFifteen2View.rightAnchor.constraint(equalTo: tableFifteenView.leftAnchor, constant: -10),
             tableFifteen2View.topAnchor.constraint(equalTo: tableFourteen2Button.bottomAnchor, constant: 5),
             tableFifteen2View.widthAnchor.constraint(equalToConstant: 100),
             tableFifteen2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableFifteen2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFifteen2TimerLabel.centerXAnchor.constraint(equalTo: tableFifteenView.rightAnchor, constant: -105),
             tableFifteen2TimerLabel.topAnchor.constraint(equalTo: tableFifteenButton.bottomAnchor, constant: 5),
-            tableFifteen2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableFifteen2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableFifteen2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableFifteen2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableFifteen2Button.centerXAnchor.constraint(equalTo: tableFifteenView.rightAnchor, constant: -105),
             tableFifteen2Button.topAnchor.constraint(equalTo: tableFifteenButton.bottomAnchor, constant: 5),
-            tableFifteen2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableFifteen2Button.widthAnchor.constraint(equalToConstant: 225),
             tableFifteen2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableFifteen2TimerResetButton.rightAnchor.constraint(equalTo: tableFifteen2TimerLabel.rightAnchor, constant: -5),
@@ -2366,39 +2366,39 @@ class ClassViewController: UIViewController {
             tableFifteen2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Sixteen Constraints
-            tableSixteenView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 300),
+            tableSixteenView.rightAnchor.constraint(equalTo: tableEleven2View.leftAnchor, constant: -50),
             tableSixteenView.topAnchor.constraint(equalTo: tableFifteen2Button.bottomAnchor, constant: 5),
             tableSixteenView.widthAnchor.constraint(equalToConstant: 100),
             tableSixteenView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableSixteenLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableSixteenLabel.centerXAnchor.constraint(equalTo: tableSixteenView.rightAnchor, constant: -105),
             tableSixteenLabel.topAnchor.constraint(equalTo: tableSixteenView.bottomAnchor, constant: -10),
-            tableSixteenLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSixteenLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSixteenLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableSixteenTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableSixteenTimerLabel.centerXAnchor.constraint(equalTo: tableSixteenView.rightAnchor, constant: -105),
             tableSixteenTimerLabel.topAnchor.constraint(equalTo: tableSixteenLabel.bottomAnchor, constant: -10),
-            tableSixteenTimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSixteenTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSixteenTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSixteenButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableSixteenButton.centerXAnchor.constraint(equalTo: tableSixteenView.rightAnchor, constant: -105),
             tableSixteenButton.topAnchor.constraint(equalTo: tableSixteenLabel.bottomAnchor, constant: -10),
-            tableSixteenButton.widthAnchor.constraint(equalToConstant: 250),
+            tableSixteenButton.widthAnchor.constraint(equalToConstant: 225),
             tableSixteenButton.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSixteen2View.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 200),
+            tableSixteen2View.rightAnchor.constraint(equalTo: tableFifteenView.leftAnchor, constant: -10),
             tableSixteen2View.topAnchor.constraint(equalTo: tableFifteen2Button.bottomAnchor, constant: 5),
             tableSixteen2View.widthAnchor.constraint(equalToConstant: 100),
             tableSixteen2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableSixteen2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableSixteen2TimerLabel.centerXAnchor.constraint(equalTo: tableSixteenView.rightAnchor, constant: -105),
             tableSixteen2TimerLabel.topAnchor.constraint(equalTo: tableSixteenButton.bottomAnchor, constant: 5),
-            tableSixteen2TimerLabel.widthAnchor.constraint(equalToConstant: 250),
+            tableSixteen2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableSixteen2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableSixteen2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 250),
+            tableSixteen2Button.centerXAnchor.constraint(equalTo: tableSixteenView.rightAnchor, constant: -105),
             tableSixteen2Button.topAnchor.constraint(equalTo: tableSixteenButton.bottomAnchor, constant: 5),
-            tableSixteen2Button.widthAnchor.constraint(equalToConstant: 250),
+            tableSixteen2Button.widthAnchor.constraint(equalToConstant: 225),
             tableSixteen2Button.heightAnchor.constraint(equalToConstant: 25),
             
             tableSixteen2TimerResetButton.rightAnchor.constraint(equalTo: tableSixteen2TimerLabel.rightAnchor, constant: -5),
