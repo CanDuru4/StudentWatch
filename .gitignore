@@ -104,7 +104,42 @@ iOSInjectionProject/
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 /*.gcno
-**/xcshareddata/WorkspaceSettings.xcsettingsü
+**/xcshareddata/WorkspaceSettings.xcsettings
 
-**/StudentWatch/GoogleService-Info.plist
 # End of https://www.toptal.com/developers/gitignore/api/xcode,swift,cocoapods
+
+### Secrets and credentials ###
+# Firebase / Google service configuration - contains project keys, never commit
+GoogleService-Info.plist
+**/GoogleService-Info.plist
+Keys.plist
+**/Keys.plist
+Secrets.xcconfig
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+*.keystore
+*.mobileprovision
+*.cer
+*.certSigningRequest
+
+### Machine and editor files ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+.idea/
+*.swp
+
+### Tooling caches (for any scripts or tooling added alongside the app) ###
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
