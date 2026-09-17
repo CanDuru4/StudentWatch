@@ -13,7 +13,7 @@
   </p>
 </p>
 
-StudentWatch (ships as **E-Monitor**) is an iPad app for exam invigilation. The single screen
+StudentWatch (ships as **E-Monitor**) is an iPad and iPhone app for exam invigilation. The single screen
 lays out 16 desks with two seats each, so a proctor can hand a different amount of time to any
 of 32 students, watch every countdown at a glance, and get an alert the moment a student's time
 runs out. It is aimed at teachers and exam proctors who run individually timed or accommodated
@@ -30,7 +30,10 @@ This application is currently in the development stage.
 - [x] Per-student countdown: enter the exam length in minutes, the label counts down live
 - [x] Alert dialog when a student's time is up, after which that seat resets to idle
 - [x] Per-student reset button to stop and clear a running timer
-- [x] Desks laid out as 16 tables of two seats, all visible on one iPad screen
+- [x] Desks laid out as 16 tables of two seats, all visible on one iPad screen, with scrolling on
+      phones, smaller iPads and narrow windows
+- [x] Input validation (whole minutes from 1 to 1440) and deadline-based countdowns that stay
+      correct after time in the background; timers live in memory and do not survive app termination
 
 ## Tech Stack
 
@@ -41,14 +44,9 @@ This application is currently in the development stage.
 
 ## Requirements
 
-- iOS 14.0+
-- Xcode 15.1
-- iPad (the app target is iPad-only, `TARGETED_DEVICE_FAMILY = 2`)
-
-> **Building on a recent Xcode:** the project's deployment target is still iOS 14.0, which newer
-> iOS SDKs no longer accept (Xcode 27 reports a supported range of 15.0+). Raise
-> `IPHONEOS_DEPLOYMENT_TARGET` to 15.0 or later — in Xcode, or for a one-off build with
-> `xcodebuild ... IPHONEOS_DEPLOYMENT_TARGET=15.0` — and the project compiles unchanged.
+- iOS 15.0+ (test targets require iOS 17 or later)
+- Xcode 27
+- iPhone or iPad
 
 ## Getting Started
 
@@ -59,13 +57,13 @@ open StudentWatch/StudentWatch.xcodeproj
 
 Then, in Xcode:
 
-1. Select the **StudentWatch** scheme and an iPad simulator (or a connected iPad).
+1. Select the shared **StudentWatch** scheme and an iPad or iPhone simulator (or a connected device).
 2. Under **Signing & Capabilities**, replace the checked-in development team with your own
    Apple Developer team and, if you plan to run on a device, change the bundle identifier
    (`com.CanDuru.StudentWatch`) to one you own.
 3. Press **Run** (`Cmd+R`).
 
-No API keys, `.env` file, or environment variables are required — the app is entirely offline
+No API keys, `.env` file, or environment variables are required; the app is entirely offline
 and stores nothing outside the running process.
 
 #### CocoaPods
@@ -79,11 +77,12 @@ StudentWatch/
 │   ├── AppDelegate.swift              # App lifecycle, scene configuration
 │   ├── SceneDelegate.swift            # Builds the window, sets ClassViewController as root
 │   ├── ClassOneViewController.swift   # The whole classroom screen: 32 timers, layout, actions
+│   ├── CountdownTime.swift            # Minute validation and deadline-based remaining time
 │   ├── Assets.xcassets/               # App icon and the AppColor1-3 colour sets
 │   ├── Base.lproj/LaunchScreen.storyboard
 │   └── Info.plist
-├── StudentWatchTests/                 # XCTest target (Xcode template stubs, no tests yet)
-├── StudentWatchUITests/               # XCUITest target (Xcode template stubs, no tests yet)
+├── StudentWatchTests/                 # XCTest unit tests for the countdown logic
+├── StudentWatchUITests/               # XCUITest phone layout test
 ├── docs/assets/                       # README images
 └── StudentWatch.xcodeproj/
 ```
@@ -106,7 +105,7 @@ Can Duru – https://canduru.net – canduru2004@gmail.com, support@canduru.net
 
 [swift-image]:https://img.shields.io/badge/swift-5.0-orange.svg
 [swift-url]: https://swift.org/
-[platform-image]: https://img.shields.io/badge/platform-iPadOS%2014.0%2B-lightgrey.svg
+[platform-image]: https://img.shields.io/badge/platform-iOS%20%7C%20iPadOS%2015.0%2B-lightgrey.svg
 [platform-url]: https://developer.apple.com/ipados/
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: LICENSE

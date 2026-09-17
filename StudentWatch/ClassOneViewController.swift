@@ -8,6 +8,57 @@
 import UIKit
 
 class ClassViewController: UIViewController {
+    private var activeTimers: [Timer] = []
+    private let classroomView = UIView()
+
+    deinit {
+        activeTimers.forEach { $0.invalidate() }
+    }
+
+    /// Runs a validated timer against a deadline so missed ticks do not extend it.
+    /// - Parameters:
+    ///   - minutesText: Whole minutes entered by the user.
+    ///   - label: The student's remaining-time label.
+    ///   - resetButton: Control shown while the timer is active.
+    ///   - startButton: Control restored after cancellation or expiry.
+    ///   - student: One-based classroom student number.
+    /// - Returns: A scheduled timer, or an inactive timer after invalid input. Does not throw.
+    /// - Example: Student 1 with input "2" counts down from two minutes.
+    private func startCountdown(minutesText: String, label: UILabel, resetButton: UIButton,
+                                startButton: UIButton, student: Int) -> Timer {
+        guard let minutes = CountdownTime.minutes(from: minutesText) else {
+            label.isHidden = true
+            resetButton.isHidden = true
+            startButton.isHidden = false
+            let alert = UIAlertController(title: "Geçersiz süre", message: "1 ile 1440 arasında tam dakika giriniz.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Tamam", style: .default))
+            DispatchQueue.main.async { [weak self] in self?.present(alert, animated: true) }
+            return Timer()
+        }
+        let deadline = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        label.text = String(format: "Öğrenci %d: %02d:%02d", student, minutes, 0)
+        let timer = Timer(timeInterval: 1, repeats: true) { [weak self, weak label, weak resetButton, weak startButton] timer in
+            guard let self, let label else { timer.invalidate(); return }
+            let seconds = CountdownTime.remainingSeconds(until: deadline)
+            label.text = String(format: "Öğrenci %d: %02d:%02d", student, seconds / 60, seconds % 60)
+            if seconds == 0 {
+                timer.invalidate()
+                resetButton?.isHidden = true
+                startButton?.isHidden = false
+                label.isHidden = true
+                if self.presentedViewController == nil {
+                    let alert = UIAlertController(title: "Öğrenci \(student) süresi bitti!", message: nil, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Tamam", style: .default))
+                    self.present(alert, animated: true)
+                }
+            }
+        }
+        activeTimers.removeAll { !$0.isValid }
+        activeTimers.append(timer)
+        RunLoop.main.add(timer, forMode: .common)
+        return timer
+    }
+
 
 //MARK: Set Variables
     
@@ -238,9 +289,42 @@ class ClassViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "AppColor1")
+        configureClassroomViewport()
         setUpVc()
     }
     
+    /// Preserves the authored desk arrangement in a scrollable classroom on smaller windows.
+    /// The four columns need 1032 points to keep their timer controls distinct.
+    /// - Returns: Nothing. Does not throw.
+    /// - Example: An iPad mini can scroll horizontally to reach the rightmost students.
+    private func configureClassroomViewport() {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        classroomView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+        scrollView.addSubview(classroomView)
+        let preferredWidth = classroomView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
+        let preferredHeight = classroomView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
+        preferredWidth.priority = .defaultLow
+        preferredHeight.priority = .defaultLow
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            classroomView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            classroomView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            classroomView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            classroomView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            classroomView.widthAnchor.constraint(greaterThanOrEqualToConstant: 1032),
+            classroomView.heightAnchor.constraint(greaterThanOrEqualToConstant: 1040),
+            classroomView.widthAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.widthAnchor),
+            classroomView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor),
+            preferredWidth,
+            preferredHeight
+        ])
+    }
+
     func setUpVc(){
         
 //MARK: TABLE ONE
@@ -249,7 +333,7 @@ class ClassViewController: UIViewController {
         let tableOneView = UIImageView(image: tableOneLogo)
         tableOneView.clipsToBounds = true
         tableOneView.contentMode = .scaleToFill
-        view.addSubview(tableOneView)
+        classroomView.addSubview(tableOneView)
         tableOneView.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -260,7 +344,7 @@ class ClassViewController: UIViewController {
         tableOneLabel.layer.cornerRadius = 15
         tableOneLabel.textAlignment = .center
         tableOneLabel.clipsToBounds = true
-        view.addSubview(tableOneLabel)
+        classroomView.addSubview(tableOneLabel)
         tableOneLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -270,7 +354,7 @@ class ClassViewController: UIViewController {
         tableOneTimerLabel.layer.cornerRadius = 15
         tableOneTimerLabel.textAlignment = .center
         tableOneTimerLabel.clipsToBounds = true
-        view.addSubview(tableOneTimerLabel)
+        classroomView.addSubview(tableOneTimerLabel)
         tableOneTimerLabel.isHidden = true
         tableOneTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -281,7 +365,7 @@ class ClassViewController: UIViewController {
         tableOneButton.layer.cornerRadius = 5
         tableOneButton.clipsToBounds = true
         tableOneButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableOneButton)
+        classroomView.addSubview(tableOneButton)
         tableOneButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -291,7 +375,7 @@ class ClassViewController: UIViewController {
         tableOneTimerResetButton.layer.cornerRadius = 5
         tableOneTimerResetButton.clipsToBounds = true
         tableOneTimerResetButton.isHidden = true
-        view.addSubview(tableOneTimerResetButton)
+        classroomView.addSubview(tableOneTimerResetButton)
         tableOneTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Image Features
@@ -299,7 +383,7 @@ class ClassViewController: UIViewController {
         let tableOne2View = UIImageView(image: tableOne2Logo)
         tableOne2View.clipsToBounds = true
         tableOne2View.contentMode = .scaleToFill
-        view.addSubview(tableOne2View)
+        classroomView.addSubview(tableOne2View)
         tableOne2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -309,7 +393,7 @@ class ClassViewController: UIViewController {
         tableOne2TimerLabel.layer.cornerRadius = 15
         tableOne2TimerLabel.textAlignment = .center
         tableOne2TimerLabel.clipsToBounds = true
-        view.addSubview(tableOne2TimerLabel)
+        classroomView.addSubview(tableOne2TimerLabel)
         tableOne2TimerLabel.isHidden = true
         tableOne2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -320,7 +404,7 @@ class ClassViewController: UIViewController {
         tableOne2Button.layer.cornerRadius = 5
         tableOne2Button.clipsToBounds = true
         tableOne2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableOne2Button)
+        classroomView.addSubview(tableOne2Button)
         tableOne2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -330,7 +414,7 @@ class ClassViewController: UIViewController {
         tableOne2TimerResetButton.layer.cornerRadius = 5
         tableOne2TimerResetButton.clipsToBounds = true
         tableOne2TimerResetButton.isHidden = true
-        view.addSubview(tableOne2TimerResetButton)
+        classroomView.addSubview(tableOne2TimerResetButton)
         tableOne2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         
@@ -340,14 +424,14 @@ class ClassViewController: UIViewController {
         let tableTwoView = UIImageView(image: tableTwoLogo)
         tableTwoView.clipsToBounds = true
         tableTwoView.contentMode = .scaleToFill
-        view.addSubview(tableTwoView)
+        classroomView.addSubview(tableTwoView)
         tableTwoView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableTwo2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableTwo2View = UIImageView(image: tableTwo2Logo)
         tableTwo2View.clipsToBounds = true
         tableTwo2View.contentMode = .scaleToFill
-        view.addSubview(tableTwo2View)
+        classroomView.addSubview(tableTwo2View)
         tableTwo2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -358,7 +442,7 @@ class ClassViewController: UIViewController {
         tableTwoLabel.layer.cornerRadius = 15
         tableTwoLabel.textAlignment = .center
         tableTwoLabel.clipsToBounds = true
-        view.addSubview(tableTwoLabel)
+        classroomView.addSubview(tableTwoLabel)
         tableTwoLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableTwoTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -367,7 +451,7 @@ class ClassViewController: UIViewController {
         tableTwoTimerLabel.layer.cornerRadius = 15
         tableTwoTimerLabel.textAlignment = .center
         tableTwoTimerLabel.clipsToBounds = true
-        view.addSubview(tableTwoTimerLabel)
+        classroomView.addSubview(tableTwoTimerLabel)
         tableTwoTimerLabel.isHidden = true
         tableTwoTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -378,7 +462,7 @@ class ClassViewController: UIViewController {
         tableTwoButton.layer.cornerRadius = 5
         tableTwoButton.clipsToBounds = true
         tableTwoButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableTwoButton)
+        classroomView.addSubview(tableTwoButton)
         tableTwoButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -388,7 +472,7 @@ class ClassViewController: UIViewController {
         tableTwoTimerResetButton.layer.cornerRadius = 5
         tableTwoTimerResetButton.clipsToBounds = true
         tableTwoTimerResetButton.isHidden = true
-        view.addSubview(tableTwoTimerResetButton)
+        classroomView.addSubview(tableTwoTimerResetButton)
         tableTwoTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -398,7 +482,7 @@ class ClassViewController: UIViewController {
         tableTwo2TimerLabel.layer.cornerRadius = 15
         tableTwo2TimerLabel.textAlignment = .center
         tableTwo2TimerLabel.clipsToBounds = true
-        view.addSubview(tableTwo2TimerLabel)
+        classroomView.addSubview(tableTwo2TimerLabel)
         tableTwo2TimerLabel.isHidden = true
         tableTwo2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -409,7 +493,7 @@ class ClassViewController: UIViewController {
         tableTwo2Button.layer.cornerRadius = 5
         tableTwo2Button.clipsToBounds = true
         tableTwo2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableTwo2Button)
+        classroomView.addSubview(tableTwo2Button)
         tableTwo2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -419,7 +503,7 @@ class ClassViewController: UIViewController {
         tableTwo2TimerResetButton.layer.cornerRadius = 5
         tableTwo2TimerResetButton.clipsToBounds = true
         tableTwo2TimerResetButton.isHidden = true
-        view.addSubview(tableTwo2TimerResetButton)
+        classroomView.addSubview(tableTwo2TimerResetButton)
         tableTwo2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         
@@ -429,14 +513,14 @@ class ClassViewController: UIViewController {
         let tableThreeView = UIImageView(image: tableThreeLogo)
         tableThreeView.clipsToBounds = true
         tableThreeView.contentMode = .scaleToFill
-        view.addSubview(tableThreeView)
+        classroomView.addSubview(tableThreeView)
         tableThreeView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableThree2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableThree2View = UIImageView(image: tableThree2Logo)
         tableThree2View.clipsToBounds = true
         tableThree2View.contentMode = .scaleToFill
-        view.addSubview(tableThree2View)
+        classroomView.addSubview(tableThree2View)
         tableThree2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -447,7 +531,7 @@ class ClassViewController: UIViewController {
         tableThreeLabel.layer.cornerRadius = 15
         tableThreeLabel.textAlignment = .center
         tableThreeLabel.clipsToBounds = true
-        view.addSubview(tableThreeLabel)
+        classroomView.addSubview(tableThreeLabel)
         tableThreeLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableThreeTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -456,7 +540,7 @@ class ClassViewController: UIViewController {
         tableThreeTimerLabel.layer.cornerRadius = 15
         tableThreeTimerLabel.textAlignment = .center
         tableThreeTimerLabel.clipsToBounds = true
-        view.addSubview(tableThreeTimerLabel)
+        classroomView.addSubview(tableThreeTimerLabel)
         tableThreeTimerLabel.isHidden = true
         tableThreeTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -467,7 +551,7 @@ class ClassViewController: UIViewController {
         tableThreeButton.layer.cornerRadius = 5
         tableThreeButton.clipsToBounds = true
         tableThreeButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableThreeButton)
+        classroomView.addSubview(tableThreeButton)
         tableThreeButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -477,7 +561,7 @@ class ClassViewController: UIViewController {
         tableThreeTimerResetButton.layer.cornerRadius = 5
         tableThreeTimerResetButton.clipsToBounds = true
         tableThreeTimerResetButton.isHidden = true
-        view.addSubview(tableThreeTimerResetButton)
+        classroomView.addSubview(tableThreeTimerResetButton)
         tableThreeTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -487,7 +571,7 @@ class ClassViewController: UIViewController {
         tableThree2TimerLabel.layer.cornerRadius = 15
         tableThree2TimerLabel.textAlignment = .center
         tableThree2TimerLabel.clipsToBounds = true
-        view.addSubview(tableThree2TimerLabel)
+        classroomView.addSubview(tableThree2TimerLabel)
         tableThree2TimerLabel.isHidden = true
         tableThree2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -498,7 +582,7 @@ class ClassViewController: UIViewController {
         tableThree2Button.layer.cornerRadius = 5
         tableThree2Button.clipsToBounds = true
         tableThree2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableThree2Button)
+        classroomView.addSubview(tableThree2Button)
         tableThree2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -508,7 +592,7 @@ class ClassViewController: UIViewController {
         tableThree2TimerResetButton.layer.cornerRadius = 5
         tableThree2TimerResetButton.clipsToBounds = true
         tableThree2TimerResetButton.isHidden = true
-        view.addSubview(tableThree2TimerResetButton)
+        classroomView.addSubview(tableThree2TimerResetButton)
         tableThree2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
       
         
@@ -518,14 +602,14 @@ class ClassViewController: UIViewController {
         let tableFourView = UIImageView(image: tableFourLogo)
         tableFourView.clipsToBounds = true
         tableFourView.contentMode = .scaleToFill
-        view.addSubview(tableFourView)
+        classroomView.addSubview(tableFourView)
         tableFourView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableFour2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableFour2View = UIImageView(image: tableFour2Logo)
         tableFour2View.clipsToBounds = true
         tableFour2View.contentMode = .scaleToFill
-        view.addSubview(tableFour2View)
+        classroomView.addSubview(tableFour2View)
         tableFour2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -536,7 +620,7 @@ class ClassViewController: UIViewController {
         tableFourLabel.layer.cornerRadius = 15
         tableFourLabel.textAlignment = .center
         tableFourLabel.clipsToBounds = true
-        view.addSubview(tableFourLabel)
+        classroomView.addSubview(tableFourLabel)
         tableFourLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableFourTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -545,7 +629,7 @@ class ClassViewController: UIViewController {
         tableFourTimerLabel.layer.cornerRadius = 15
         tableFourTimerLabel.textAlignment = .center
         tableFourTimerLabel.clipsToBounds = true
-        view.addSubview(tableFourTimerLabel)
+        classroomView.addSubview(tableFourTimerLabel)
         tableFourTimerLabel.isHidden = true
         tableFourTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -556,7 +640,7 @@ class ClassViewController: UIViewController {
         tableFourButton.layer.cornerRadius = 5
         tableFourButton.clipsToBounds = true
         tableFourButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFourButton)
+        classroomView.addSubview(tableFourButton)
         tableFourButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -566,7 +650,7 @@ class ClassViewController: UIViewController {
         tableFourTimerResetButton.layer.cornerRadius = 5
         tableFourTimerResetButton.clipsToBounds = true
         tableFourTimerResetButton.isHidden = true
-        view.addSubview(tableFourTimerResetButton)
+        classroomView.addSubview(tableFourTimerResetButton)
         tableFourTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -576,7 +660,7 @@ class ClassViewController: UIViewController {
         tableFour2TimerLabel.layer.cornerRadius = 15
         tableFour2TimerLabel.textAlignment = .center
         tableFour2TimerLabel.clipsToBounds = true
-        view.addSubview(tableFour2TimerLabel)
+        classroomView.addSubview(tableFour2TimerLabel)
         tableFour2TimerLabel.isHidden = true
         tableFour2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -587,7 +671,7 @@ class ClassViewController: UIViewController {
         tableFour2Button.layer.cornerRadius = 5
         tableFour2Button.clipsToBounds = true
         tableFour2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFour2Button)
+        classroomView.addSubview(tableFour2Button)
         tableFour2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -597,7 +681,7 @@ class ClassViewController: UIViewController {
         tableFour2TimerResetButton.layer.cornerRadius = 5
         tableFour2TimerResetButton.clipsToBounds = true
         tableFour2TimerResetButton.isHidden = true
-        view.addSubview(tableFour2TimerResetButton)
+        classroomView.addSubview(tableFour2TimerResetButton)
         tableFour2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         
@@ -607,14 +691,14 @@ class ClassViewController: UIViewController {
         let tableFiveView = UIImageView(image: tableFiveLogo)
         tableFiveView.clipsToBounds = true
         tableFiveView.contentMode = .scaleToFill
-        view.addSubview(tableFiveView)
+        classroomView.addSubview(tableFiveView)
         tableFiveView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableFive2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableFive2View = UIImageView(image: tableFive2Logo)
         tableFive2View.clipsToBounds = true
         tableFive2View.contentMode = .scaleToFill
-        view.addSubview(tableFive2View)
+        classroomView.addSubview(tableFive2View)
         tableFive2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -625,7 +709,7 @@ class ClassViewController: UIViewController {
         tableFiveLabel.layer.cornerRadius = 15
         tableFiveLabel.textAlignment = .center
         tableFiveLabel.clipsToBounds = true
-        view.addSubview(tableFiveLabel)
+        classroomView.addSubview(tableFiveLabel)
         tableFiveLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableFiveTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -634,7 +718,7 @@ class ClassViewController: UIViewController {
         tableFiveTimerLabel.layer.cornerRadius = 15
         tableFiveTimerLabel.textAlignment = .center
         tableFiveTimerLabel.clipsToBounds = true
-        view.addSubview(tableFiveTimerLabel)
+        classroomView.addSubview(tableFiveTimerLabel)
         tableFiveTimerLabel.isHidden = true
         tableFiveTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -645,7 +729,7 @@ class ClassViewController: UIViewController {
         tableFiveButton.layer.cornerRadius = 5
         tableFiveButton.clipsToBounds = true
         tableFiveButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFiveButton)
+        classroomView.addSubview(tableFiveButton)
         tableFiveButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -655,7 +739,7 @@ class ClassViewController: UIViewController {
         tableFiveTimerResetButton.layer.cornerRadius = 5
         tableFiveTimerResetButton.clipsToBounds = true
         tableFiveTimerResetButton.isHidden = true
-        view.addSubview(tableFiveTimerResetButton)
+        classroomView.addSubview(tableFiveTimerResetButton)
         tableFiveTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -665,7 +749,7 @@ class ClassViewController: UIViewController {
         tableFive2TimerLabel.layer.cornerRadius = 15
         tableFive2TimerLabel.textAlignment = .center
         tableFive2TimerLabel.clipsToBounds = true
-        view.addSubview(tableFive2TimerLabel)
+        classroomView.addSubview(tableFive2TimerLabel)
         tableFive2TimerLabel.isHidden = true
         tableFive2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -676,7 +760,7 @@ class ClassViewController: UIViewController {
         tableFive2Button.layer.cornerRadius = 5
         tableFive2Button.clipsToBounds = true
         tableFive2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFive2Button)
+        classroomView.addSubview(tableFive2Button)
         tableFive2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -686,7 +770,7 @@ class ClassViewController: UIViewController {
         tableFive2TimerResetButton.layer.cornerRadius = 5
         tableFive2TimerResetButton.clipsToBounds = true
         tableFive2TimerResetButton.isHidden = true
-        view.addSubview(tableFive2TimerResetButton)
+        classroomView.addSubview(tableFive2TimerResetButton)
         tableFive2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         
@@ -696,14 +780,14 @@ class ClassViewController: UIViewController {
         let tableSixView = UIImageView(image: tableSixLogo)
         tableSixView.clipsToBounds = true
         tableSixView.contentMode = .scaleToFill
-        view.addSubview(tableSixView)
+        classroomView.addSubview(tableSixView)
         tableSixView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableSix2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableSix2View = UIImageView(image: tableSix2Logo)
         tableSix2View.clipsToBounds = true
         tableSix2View.contentMode = .scaleToFill
-        view.addSubview(tableSix2View)
+        classroomView.addSubview(tableSix2View)
         tableSix2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -714,7 +798,7 @@ class ClassViewController: UIViewController {
         tableSixLabel.layer.cornerRadius = 15
         tableSixLabel.textAlignment = .center
         tableSixLabel.clipsToBounds = true
-        view.addSubview(tableSixLabel)
+        classroomView.addSubview(tableSixLabel)
         tableSixLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableSixTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -723,7 +807,7 @@ class ClassViewController: UIViewController {
         tableSixTimerLabel.layer.cornerRadius = 15
         tableSixTimerLabel.textAlignment = .center
         tableSixTimerLabel.clipsToBounds = true
-        view.addSubview(tableSixTimerLabel)
+        classroomView.addSubview(tableSixTimerLabel)
         tableSixTimerLabel.isHidden = true
         tableSixTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -734,7 +818,7 @@ class ClassViewController: UIViewController {
         tableSixButton.layer.cornerRadius = 5
         tableSixButton.clipsToBounds = true
         tableSixButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableSixButton)
+        classroomView.addSubview(tableSixButton)
         tableSixButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -744,7 +828,7 @@ class ClassViewController: UIViewController {
         tableSixTimerResetButton.layer.cornerRadius = 5
         tableSixTimerResetButton.clipsToBounds = true
         tableSixTimerResetButton.isHidden = true
-        view.addSubview(tableSixTimerResetButton)
+        classroomView.addSubview(tableSixTimerResetButton)
         tableSixTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -754,7 +838,7 @@ class ClassViewController: UIViewController {
         tableSix2TimerLabel.layer.cornerRadius = 15
         tableSix2TimerLabel.textAlignment = .center
         tableSix2TimerLabel.clipsToBounds = true
-        view.addSubview(tableSix2TimerLabel)
+        classroomView.addSubview(tableSix2TimerLabel)
         tableSix2TimerLabel.isHidden = true
         tableSix2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -765,7 +849,7 @@ class ClassViewController: UIViewController {
         tableSix2Button.layer.cornerRadius = 5
         tableSix2Button.clipsToBounds = true
         tableSix2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableSix2Button)
+        classroomView.addSubview(tableSix2Button)
         tableSix2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -775,7 +859,7 @@ class ClassViewController: UIViewController {
         tableSix2TimerResetButton.layer.cornerRadius = 5
         tableSix2TimerResetButton.clipsToBounds = true
         tableSix2TimerResetButton.isHidden = true
-        view.addSubview(tableSix2TimerResetButton)
+        classroomView.addSubview(tableSix2TimerResetButton)
         tableSix2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
         
@@ -785,14 +869,14 @@ class ClassViewController: UIViewController {
         let tableSevenView = UIImageView(image: tableSevenLogo)
         tableSevenView.clipsToBounds = true
         tableSevenView.contentMode = .scaleToFill
-        view.addSubview(tableSevenView)
+        classroomView.addSubview(tableSevenView)
         tableSevenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableSeven2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableSeven2View = UIImageView(image: tableSeven2Logo)
         tableSeven2View.clipsToBounds = true
         tableSeven2View.contentMode = .scaleToFill
-        view.addSubview(tableSeven2View)
+        classroomView.addSubview(tableSeven2View)
         tableSeven2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -803,7 +887,7 @@ class ClassViewController: UIViewController {
         tableSevenLabel.layer.cornerRadius = 15
         tableSevenLabel.textAlignment = .center
         tableSevenLabel.clipsToBounds = true
-        view.addSubview(tableSevenLabel)
+        classroomView.addSubview(tableSevenLabel)
         tableSevenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableSevenTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -812,7 +896,7 @@ class ClassViewController: UIViewController {
         tableSevenTimerLabel.layer.cornerRadius = 15
         tableSevenTimerLabel.textAlignment = .center
         tableSevenTimerLabel.clipsToBounds = true
-        view.addSubview(tableSevenTimerLabel)
+        classroomView.addSubview(tableSevenTimerLabel)
         tableSevenTimerLabel.isHidden = true
         tableSevenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -823,7 +907,7 @@ class ClassViewController: UIViewController {
         tableSevenButton.layer.cornerRadius = 5
         tableSevenButton.clipsToBounds = true
         tableSevenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableSevenButton)
+        classroomView.addSubview(tableSevenButton)
         tableSevenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -833,7 +917,7 @@ class ClassViewController: UIViewController {
         tableSevenTimerResetButton.layer.cornerRadius = 5
         tableSevenTimerResetButton.clipsToBounds = true
         tableSevenTimerResetButton.isHidden = true
-        view.addSubview(tableSevenTimerResetButton)
+        classroomView.addSubview(tableSevenTimerResetButton)
         tableSevenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -843,7 +927,7 @@ class ClassViewController: UIViewController {
         tableSeven2TimerLabel.layer.cornerRadius = 15
         tableSeven2TimerLabel.textAlignment = .center
         tableSeven2TimerLabel.clipsToBounds = true
-        view.addSubview(tableSeven2TimerLabel)
+        classroomView.addSubview(tableSeven2TimerLabel)
         tableSeven2TimerLabel.isHidden = true
         tableSeven2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -854,7 +938,7 @@ class ClassViewController: UIViewController {
         tableSeven2Button.layer.cornerRadius = 5
         tableSeven2Button.clipsToBounds = true
         tableSeven2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableSeven2Button)
+        classroomView.addSubview(tableSeven2Button)
         tableSeven2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -864,7 +948,7 @@ class ClassViewController: UIViewController {
         tableSeven2TimerResetButton.layer.cornerRadius = 5
         tableSeven2TimerResetButton.clipsToBounds = true
         tableSeven2TimerResetButton.isHidden = true
-        view.addSubview(tableSeven2TimerResetButton)
+        classroomView.addSubview(tableSeven2TimerResetButton)
         tableSeven2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
 //MARK: TABLE EIGHT
@@ -873,14 +957,14 @@ class ClassViewController: UIViewController {
         let tableEightView = UIImageView(image: tableEightLogo)
         tableEightView.clipsToBounds = true
         tableEightView.contentMode = .scaleToFill
-        view.addSubview(tableEightView)
+        classroomView.addSubview(tableEightView)
         tableEightView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableEight2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableEight2View = UIImageView(image: tableEight2Logo)
         tableEight2View.clipsToBounds = true
         tableEight2View.contentMode = .scaleToFill
-        view.addSubview(tableEight2View)
+        classroomView.addSubview(tableEight2View)
         tableEight2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -891,7 +975,7 @@ class ClassViewController: UIViewController {
         tableEightLabel.layer.cornerRadius = 15
         tableEightLabel.textAlignment = .center
         tableEightLabel.clipsToBounds = true
-        view.addSubview(tableEightLabel)
+        classroomView.addSubview(tableEightLabel)
         tableEightLabel.translatesAutoresizingMaskIntoConstraints = false
         
         tableEightTimerLabel.backgroundColor = UIColor(named: "AppColor2")
@@ -900,7 +984,7 @@ class ClassViewController: UIViewController {
         tableEightTimerLabel.layer.cornerRadius = 15
         tableEightTimerLabel.textAlignment = .center
         tableEightTimerLabel.clipsToBounds = true
-        view.addSubview(tableEightTimerLabel)
+        classroomView.addSubview(tableEightTimerLabel)
         tableEightTimerLabel.isHidden = true
         tableEightTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -911,7 +995,7 @@ class ClassViewController: UIViewController {
         tableEightButton.layer.cornerRadius = 5
         tableEightButton.clipsToBounds = true
         tableEightButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableEightButton)
+        classroomView.addSubview(tableEightButton)
         tableEightButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -921,7 +1005,7 @@ class ClassViewController: UIViewController {
         tableEightTimerResetButton.layer.cornerRadius = 5
         tableEightTimerResetButton.clipsToBounds = true
         tableEightTimerResetButton.isHidden = true
-        view.addSubview(tableEightTimerResetButton)
+        classroomView.addSubview(tableEightTimerResetButton)
         tableEightTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -931,7 +1015,7 @@ class ClassViewController: UIViewController {
         tableEight2TimerLabel.layer.cornerRadius = 15
         tableEight2TimerLabel.textAlignment = .center
         tableEight2TimerLabel.clipsToBounds = true
-        view.addSubview(tableEight2TimerLabel)
+        classroomView.addSubview(tableEight2TimerLabel)
         tableEight2TimerLabel.isHidden = true
         tableEight2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -942,7 +1026,7 @@ class ClassViewController: UIViewController {
         tableEight2Button.layer.cornerRadius = 5
         tableEight2Button.clipsToBounds = true
         tableEight2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableEight2Button)
+        classroomView.addSubview(tableEight2Button)
         tableEight2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -952,7 +1036,7 @@ class ClassViewController: UIViewController {
         tableEight2TimerResetButton.layer.cornerRadius = 5
         tableEight2TimerResetButton.clipsToBounds = true
         tableEight2TimerResetButton.isHidden = true
-        view.addSubview(tableEight2TimerResetButton)
+        classroomView.addSubview(tableEight2TimerResetButton)
         tableEight2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
 //MARK: TABLE NINE
@@ -961,14 +1045,14 @@ class ClassViewController: UIViewController {
         let tableNineView = UIImageView(image: tableNineLogo)
         tableNineView.clipsToBounds = true
         tableNineView.contentMode = .scaleToFill
-        view.addSubview(tableNineView)
+        classroomView.addSubview(tableNineView)
         tableNineView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableNine2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableNine2View = UIImageView(image: tableNine2Logo)
         tableNine2View.clipsToBounds = true
         tableNine2View.contentMode = .scaleToFill
-        view.addSubview(tableNine2View)
+        classroomView.addSubview(tableNine2View)
         tableNine2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -979,7 +1063,7 @@ class ClassViewController: UIViewController {
         tableNineLabel.layer.cornerRadius = 15
         tableNineLabel.textAlignment = .center
         tableNineLabel.clipsToBounds = true
-        view.addSubview(tableNineLabel)
+        classroomView.addSubview(tableNineLabel)
         tableNineLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -989,7 +1073,7 @@ class ClassViewController: UIViewController {
         tableNineTimerLabel.layer.cornerRadius = 15
         tableNineTimerLabel.textAlignment = .center
         tableNineTimerLabel.clipsToBounds = true
-        view.addSubview(tableNineTimerLabel)
+        classroomView.addSubview(tableNineTimerLabel)
         tableNineTimerLabel.isHidden = true
         tableNineTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1000,7 +1084,7 @@ class ClassViewController: UIViewController {
         tableNineButton.layer.cornerRadius = 5
         tableNineButton.clipsToBounds = true
         tableNineButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableNineButton)
+        classroomView.addSubview(tableNineButton)
         tableNineButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1010,7 +1094,7 @@ class ClassViewController: UIViewController {
         tableNineTimerResetButton.layer.cornerRadius = 5
         tableNineTimerResetButton.clipsToBounds = true
         tableNineTimerResetButton.isHidden = true
-        view.addSubview(tableNineTimerResetButton)
+        classroomView.addSubview(tableNineTimerResetButton)
         tableNineTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1020,7 +1104,7 @@ class ClassViewController: UIViewController {
         tableNine2TimerLabel.layer.cornerRadius = 15
         tableNine2TimerLabel.textAlignment = .center
         tableNine2TimerLabel.clipsToBounds = true
-        view.addSubview(tableNine2TimerLabel)
+        classroomView.addSubview(tableNine2TimerLabel)
         tableNine2TimerLabel.isHidden = true
         tableNine2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1031,7 +1115,7 @@ class ClassViewController: UIViewController {
         tableNine2Button.layer.cornerRadius = 5
         tableNine2Button.clipsToBounds = true
         tableNine2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableNine2Button)
+        classroomView.addSubview(tableNine2Button)
         tableNine2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1041,7 +1125,7 @@ class ClassViewController: UIViewController {
         tableNine2TimerResetButton.layer.cornerRadius = 5
         tableNine2TimerResetButton.clipsToBounds = true
         tableNine2TimerResetButton.isHidden = true
-        view.addSubview(tableNine2TimerResetButton)
+        classroomView.addSubview(tableNine2TimerResetButton)
         tableNine2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
 //MARK: TABLE TEN
@@ -1050,14 +1134,14 @@ class ClassViewController: UIViewController {
         let tableTenView = UIImageView(image: tableTenLogo)
         tableTenView.clipsToBounds = true
         tableTenView.contentMode = .scaleToFill
-        view.addSubview(tableTenView)
+        classroomView.addSubview(tableTenView)
         tableTenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableTen2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableTen2View = UIImageView(image: tableTen2Logo)
         tableTen2View.clipsToBounds = true
         tableTen2View.contentMode = .scaleToFill
-        view.addSubview(tableTen2View)
+        classroomView.addSubview(tableTen2View)
         tableTen2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1068,7 +1152,7 @@ class ClassViewController: UIViewController {
         tableTenLabel.layer.cornerRadius = 15
         tableTenLabel.textAlignment = .center
         tableTenLabel.clipsToBounds = true
-        view.addSubview(tableTenLabel)
+        classroomView.addSubview(tableTenLabel)
         tableTenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1078,7 +1162,7 @@ class ClassViewController: UIViewController {
         tableTenTimerLabel.layer.cornerRadius = 15
         tableTenTimerLabel.textAlignment = .center
         tableTenTimerLabel.clipsToBounds = true
-        view.addSubview(tableTenTimerLabel)
+        classroomView.addSubview(tableTenTimerLabel)
         tableTenTimerLabel.isHidden = true
         tableTenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1089,7 +1173,7 @@ class ClassViewController: UIViewController {
         tableTenButton.layer.cornerRadius = 5
         tableTenButton.clipsToBounds = true
         tableTenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableTenButton)
+        classroomView.addSubview(tableTenButton)
         tableTenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1099,7 +1183,7 @@ class ClassViewController: UIViewController {
         tableTenTimerResetButton.layer.cornerRadius = 5
         tableTenTimerResetButton.clipsToBounds = true
         tableTenTimerResetButton.isHidden = true
-        view.addSubview(tableTenTimerResetButton)
+        classroomView.addSubview(tableTenTimerResetButton)
         tableTenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1109,7 +1193,7 @@ class ClassViewController: UIViewController {
         tableTen2TimerLabel.layer.cornerRadius = 15
         tableTen2TimerLabel.textAlignment = .center
         tableTen2TimerLabel.clipsToBounds = true
-        view.addSubview(tableTen2TimerLabel)
+        classroomView.addSubview(tableTen2TimerLabel)
         tableTen2TimerLabel.isHidden = true
         tableTen2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1120,7 +1204,7 @@ class ClassViewController: UIViewController {
         tableTen2Button.layer.cornerRadius = 5
         tableTen2Button.clipsToBounds = true
         tableTen2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableTen2Button)
+        classroomView.addSubview(tableTen2Button)
         tableTen2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1130,7 +1214,7 @@ class ClassViewController: UIViewController {
         tableTen2TimerResetButton.layer.cornerRadius = 5
         tableTen2TimerResetButton.clipsToBounds = true
         tableTen2TimerResetButton.isHidden = true
-        view.addSubview(tableTen2TimerResetButton)
+        classroomView.addSubview(tableTen2TimerResetButton)
         tableTen2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
         
@@ -1140,14 +1224,14 @@ class ClassViewController: UIViewController {
         let tableElevenView = UIImageView(image: tableElevenLogo)
         tableElevenView.clipsToBounds = true
         tableElevenView.contentMode = .scaleToFill
-        view.addSubview(tableElevenView)
+        classroomView.addSubview(tableElevenView)
         tableElevenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableEleven2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableEleven2View = UIImageView(image: tableEleven2Logo)
         tableEleven2View.clipsToBounds = true
         tableEleven2View.contentMode = .scaleToFill
-        view.addSubview(tableEleven2View)
+        classroomView.addSubview(tableEleven2View)
         tableEleven2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1158,7 +1242,7 @@ class ClassViewController: UIViewController {
         tableElevenLabel.layer.cornerRadius = 15
         tableElevenLabel.textAlignment = .center
         tableElevenLabel.clipsToBounds = true
-        view.addSubview(tableElevenLabel)
+        classroomView.addSubview(tableElevenLabel)
         tableElevenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1168,7 +1252,7 @@ class ClassViewController: UIViewController {
         tableElevenTimerLabel.layer.cornerRadius = 15
         tableElevenTimerLabel.textAlignment = .center
         tableElevenTimerLabel.clipsToBounds = true
-        view.addSubview(tableElevenTimerLabel)
+        classroomView.addSubview(tableElevenTimerLabel)
         tableElevenTimerLabel.isHidden = true
         tableElevenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1179,7 +1263,7 @@ class ClassViewController: UIViewController {
         tableElevenButton.layer.cornerRadius = 5
         tableElevenButton.clipsToBounds = true
         tableElevenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableElevenButton)
+        classroomView.addSubview(tableElevenButton)
         tableElevenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1189,7 +1273,7 @@ class ClassViewController: UIViewController {
         tableElevenTimerResetButton.layer.cornerRadius = 5
         tableElevenTimerResetButton.clipsToBounds = true
         tableElevenTimerResetButton.isHidden = true
-        view.addSubview(tableElevenTimerResetButton)
+        classroomView.addSubview(tableElevenTimerResetButton)
         tableElevenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1199,7 +1283,7 @@ class ClassViewController: UIViewController {
         tableEleven2TimerLabel.layer.cornerRadius = 15
         tableEleven2TimerLabel.textAlignment = .center
         tableEleven2TimerLabel.clipsToBounds = true
-        view.addSubview(tableEleven2TimerLabel)
+        classroomView.addSubview(tableEleven2TimerLabel)
         tableEleven2TimerLabel.isHidden = true
         tableEleven2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1210,7 +1294,7 @@ class ClassViewController: UIViewController {
         tableEleven2Button.layer.cornerRadius = 5
         tableEleven2Button.clipsToBounds = true
         tableEleven2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableEleven2Button)
+        classroomView.addSubview(tableEleven2Button)
         tableEleven2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1220,7 +1304,7 @@ class ClassViewController: UIViewController {
         tableEleven2TimerResetButton.layer.cornerRadius = 5
         tableEleven2TimerResetButton.clipsToBounds = true
         tableEleven2TimerResetButton.isHidden = true
-        view.addSubview(tableEleven2TimerResetButton)
+        classroomView.addSubview(tableEleven2TimerResetButton)
         tableEleven2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
         
@@ -1230,14 +1314,14 @@ class ClassViewController: UIViewController {
         let tableTwelveView = UIImageView(image: tableTwelveLogo)
         tableTwelveView.clipsToBounds = true
         tableTwelveView.contentMode = .scaleToFill
-        view.addSubview(tableTwelveView)
+        classroomView.addSubview(tableTwelveView)
         tableTwelveView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableTwelve2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableTwelve2View = UIImageView(image: tableTwelve2Logo)
         tableTwelve2View.clipsToBounds = true
         tableTwelve2View.contentMode = .scaleToFill
-        view.addSubview(tableTwelve2View)
+        classroomView.addSubview(tableTwelve2View)
         tableTwelve2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1248,7 +1332,7 @@ class ClassViewController: UIViewController {
         tableTwelveLabel.layer.cornerRadius = 15
         tableTwelveLabel.textAlignment = .center
         tableTwelveLabel.clipsToBounds = true
-        view.addSubview(tableTwelveLabel)
+        classroomView.addSubview(tableTwelveLabel)
         tableTwelveLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1258,7 +1342,7 @@ class ClassViewController: UIViewController {
         tableTwelveTimerLabel.layer.cornerRadius = 15
         tableTwelveTimerLabel.textAlignment = .center
         tableTwelveTimerLabel.clipsToBounds = true
-        view.addSubview(tableTwelveTimerLabel)
+        classroomView.addSubview(tableTwelveTimerLabel)
         tableTwelveTimerLabel.isHidden = true
         tableTwelveTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1269,7 +1353,7 @@ class ClassViewController: UIViewController {
         tableTwelveButton.layer.cornerRadius = 5
         tableTwelveButton.clipsToBounds = true
         tableTwelveButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableTwelveButton)
+        classroomView.addSubview(tableTwelveButton)
         tableTwelveButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1279,7 +1363,7 @@ class ClassViewController: UIViewController {
         tableTwelveTimerResetButton.layer.cornerRadius = 5
         tableTwelveTimerResetButton.clipsToBounds = true
         tableTwelveTimerResetButton.isHidden = true
-        view.addSubview(tableTwelveTimerResetButton)
+        classroomView.addSubview(tableTwelveTimerResetButton)
         tableTwelveTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1289,7 +1373,7 @@ class ClassViewController: UIViewController {
         tableTwelve2TimerLabel.layer.cornerRadius = 15
         tableTwelve2TimerLabel.textAlignment = .center
         tableTwelve2TimerLabel.clipsToBounds = true
-        view.addSubview(tableTwelve2TimerLabel)
+        classroomView.addSubview(tableTwelve2TimerLabel)
         tableTwelve2TimerLabel.isHidden = true
         tableTwelve2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1300,7 +1384,7 @@ class ClassViewController: UIViewController {
         tableTwelve2Button.layer.cornerRadius = 5
         tableTwelve2Button.clipsToBounds = true
         tableTwelve2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableTwelve2Button)
+        classroomView.addSubview(tableTwelve2Button)
         tableTwelve2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1310,7 +1394,7 @@ class ClassViewController: UIViewController {
         tableTwelve2TimerResetButton.layer.cornerRadius = 5
         tableTwelve2TimerResetButton.clipsToBounds = true
         tableTwelve2TimerResetButton.isHidden = true
-        view.addSubview(tableTwelve2TimerResetButton)
+        classroomView.addSubview(tableTwelve2TimerResetButton)
         tableTwelve2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
         
@@ -1320,14 +1404,14 @@ class ClassViewController: UIViewController {
         let tableThirteenView = UIImageView(image: tableThirteenLogo)
         tableThirteenView.clipsToBounds = true
         tableThirteenView.contentMode = .scaleToFill
-        view.addSubview(tableThirteenView)
+        classroomView.addSubview(tableThirteenView)
         tableThirteenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableThirteen2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableThirteen2View = UIImageView(image: tableThirteen2Logo)
         tableThirteen2View.clipsToBounds = true
         tableThirteen2View.contentMode = .scaleToFill
-        view.addSubview(tableThirteen2View)
+        classroomView.addSubview(tableThirteen2View)
         tableThirteen2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1338,7 +1422,7 @@ class ClassViewController: UIViewController {
         tableThirteenLabel.layer.cornerRadius = 15
         tableThirteenLabel.textAlignment = .center
         tableThirteenLabel.clipsToBounds = true
-        view.addSubview(tableThirteenLabel)
+        classroomView.addSubview(tableThirteenLabel)
         tableThirteenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1348,7 +1432,7 @@ class ClassViewController: UIViewController {
         tableThirteenTimerLabel.layer.cornerRadius = 15
         tableThirteenTimerLabel.textAlignment = .center
         tableThirteenTimerLabel.clipsToBounds = true
-        view.addSubview(tableThirteenTimerLabel)
+        classroomView.addSubview(tableThirteenTimerLabel)
         tableThirteenTimerLabel.isHidden = true
         tableThirteenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1359,7 +1443,7 @@ class ClassViewController: UIViewController {
         tableThirteenButton.layer.cornerRadius = 5
         tableThirteenButton.clipsToBounds = true
         tableThirteenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableThirteenButton)
+        classroomView.addSubview(tableThirteenButton)
         tableThirteenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1369,7 +1453,7 @@ class ClassViewController: UIViewController {
         tableThirteenTimerResetButton.layer.cornerRadius = 5
         tableThirteenTimerResetButton.clipsToBounds = true
         tableThirteenTimerResetButton.isHidden = true
-        view.addSubview(tableThirteenTimerResetButton)
+        classroomView.addSubview(tableThirteenTimerResetButton)
         tableThirteenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1379,7 +1463,7 @@ class ClassViewController: UIViewController {
         tableThirteen2TimerLabel.layer.cornerRadius = 15
         tableThirteen2TimerLabel.textAlignment = .center
         tableThirteen2TimerLabel.clipsToBounds = true
-        view.addSubview(tableThirteen2TimerLabel)
+        classroomView.addSubview(tableThirteen2TimerLabel)
         tableThirteen2TimerLabel.isHidden = true
         tableThirteen2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1390,7 +1474,7 @@ class ClassViewController: UIViewController {
         tableThirteen2Button.layer.cornerRadius = 5
         tableThirteen2Button.clipsToBounds = true
         tableThirteen2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableThirteen2Button)
+        classroomView.addSubview(tableThirteen2Button)
         tableThirteen2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1400,7 +1484,7 @@ class ClassViewController: UIViewController {
         tableThirteen2TimerResetButton.layer.cornerRadius = 5
         tableThirteen2TimerResetButton.clipsToBounds = true
         tableThirteen2TimerResetButton.isHidden = true
-        view.addSubview(tableThirteen2TimerResetButton)
+        classroomView.addSubview(tableThirteen2TimerResetButton)
         tableThirteen2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
 //MARK: TABLE FOURTEEN
@@ -1409,14 +1493,14 @@ class ClassViewController: UIViewController {
         let tableFourteenView = UIImageView(image: tableFourteenLogo)
         tableFourteenView.clipsToBounds = true
         tableFourteenView.contentMode = .scaleToFill
-        view.addSubview(tableFourteenView)
+        classroomView.addSubview(tableFourteenView)
         tableFourteenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableFourteen2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableFourteen2View = UIImageView(image: tableFourteen2Logo)
         tableFourteen2View.clipsToBounds = true
         tableFourteen2View.contentMode = .scaleToFill
-        view.addSubview(tableFourteen2View)
+        classroomView.addSubview(tableFourteen2View)
         tableFourteen2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1427,7 +1511,7 @@ class ClassViewController: UIViewController {
         tableFourteenLabel.layer.cornerRadius = 15
         tableFourteenLabel.textAlignment = .center
         tableFourteenLabel.clipsToBounds = true
-        view.addSubview(tableFourteenLabel)
+        classroomView.addSubview(tableFourteenLabel)
         tableFourteenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1437,7 +1521,7 @@ class ClassViewController: UIViewController {
         tableFourteenTimerLabel.layer.cornerRadius = 15
         tableFourteenTimerLabel.textAlignment = .center
         tableFourteenTimerLabel.clipsToBounds = true
-        view.addSubview(tableFourteenTimerLabel)
+        classroomView.addSubview(tableFourteenTimerLabel)
         tableFourteenTimerLabel.isHidden = true
         tableFourteenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1448,7 +1532,7 @@ class ClassViewController: UIViewController {
         tableFourteenButton.layer.cornerRadius = 5
         tableFourteenButton.clipsToBounds = true
         tableFourteenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFourteenButton)
+        classroomView.addSubview(tableFourteenButton)
         tableFourteenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1458,7 +1542,7 @@ class ClassViewController: UIViewController {
         tableFourteenTimerResetButton.layer.cornerRadius = 5
         tableFourteenTimerResetButton.clipsToBounds = true
         tableFourteenTimerResetButton.isHidden = true
-        view.addSubview(tableFourteenTimerResetButton)
+        classroomView.addSubview(tableFourteenTimerResetButton)
         tableFourteenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1468,7 +1552,7 @@ class ClassViewController: UIViewController {
         tableFourteen2TimerLabel.layer.cornerRadius = 15
         tableFourteen2TimerLabel.textAlignment = .center
         tableFourteen2TimerLabel.clipsToBounds = true
-        view.addSubview(tableFourteen2TimerLabel)
+        classroomView.addSubview(tableFourteen2TimerLabel)
         tableFourteen2TimerLabel.isHidden = true
         tableFourteen2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1479,7 +1563,7 @@ class ClassViewController: UIViewController {
         tableFourteen2Button.layer.cornerRadius = 5
         tableFourteen2Button.clipsToBounds = true
         tableFourteen2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFourteen2Button)
+        classroomView.addSubview(tableFourteen2Button)
         tableFourteen2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1489,7 +1573,7 @@ class ClassViewController: UIViewController {
         tableFourteen2TimerResetButton.layer.cornerRadius = 5
         tableFourteen2TimerResetButton.clipsToBounds = true
         tableFourteen2TimerResetButton.isHidden = true
-        view.addSubview(tableFourteen2TimerResetButton)
+        classroomView.addSubview(tableFourteen2TimerResetButton)
         tableFourteen2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
 //MARK: TABLE FIFTEEN
@@ -1498,14 +1582,14 @@ class ClassViewController: UIViewController {
         let tableFifteenView = UIImageView(image: tableFifteenLogo)
         tableFifteenView.clipsToBounds = true
         tableFifteenView.contentMode = .scaleToFill
-        view.addSubview(tableFifteenView)
+        classroomView.addSubview(tableFifteenView)
         tableFifteenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableFifteen2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableFifteen2View = UIImageView(image: tableFifteen2Logo)
         tableFifteen2View.clipsToBounds = true
         tableFifteen2View.contentMode = .scaleToFill
-        view.addSubview(tableFifteen2View)
+        classroomView.addSubview(tableFifteen2View)
         tableFifteen2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1516,7 +1600,7 @@ class ClassViewController: UIViewController {
         tableFifteenLabel.layer.cornerRadius = 15
         tableFifteenLabel.textAlignment = .center
         tableFifteenLabel.clipsToBounds = true
-        view.addSubview(tableFifteenLabel)
+        classroomView.addSubview(tableFifteenLabel)
         tableFifteenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1526,7 +1610,7 @@ class ClassViewController: UIViewController {
         tableFifteenTimerLabel.layer.cornerRadius = 15
         tableFifteenTimerLabel.textAlignment = .center
         tableFifteenTimerLabel.clipsToBounds = true
-        view.addSubview(tableFifteenTimerLabel)
+        classroomView.addSubview(tableFifteenTimerLabel)
         tableFifteenTimerLabel.isHidden = true
         tableFifteenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1537,7 +1621,7 @@ class ClassViewController: UIViewController {
         tableFifteenButton.layer.cornerRadius = 5
         tableFifteenButton.clipsToBounds = true
         tableFifteenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFifteenButton)
+        classroomView.addSubview(tableFifteenButton)
         tableFifteenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1547,7 +1631,7 @@ class ClassViewController: UIViewController {
         tableFifteenTimerResetButton.layer.cornerRadius = 5
         tableFifteenTimerResetButton.clipsToBounds = true
         tableFifteenTimerResetButton.isHidden = true
-        view.addSubview(tableFifteenTimerResetButton)
+        classroomView.addSubview(tableFifteenTimerResetButton)
         tableFifteenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1557,7 +1641,7 @@ class ClassViewController: UIViewController {
         tableFifteen2TimerLabel.layer.cornerRadius = 15
         tableFifteen2TimerLabel.textAlignment = .center
         tableFifteen2TimerLabel.clipsToBounds = true
-        view.addSubview(tableFifteen2TimerLabel)
+        classroomView.addSubview(tableFifteen2TimerLabel)
         tableFifteen2TimerLabel.isHidden = true
         tableFifteen2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1568,7 +1652,7 @@ class ClassViewController: UIViewController {
         tableFifteen2Button.layer.cornerRadius = 5
         tableFifteen2Button.clipsToBounds = true
         tableFifteen2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableFifteen2Button)
+        classroomView.addSubview(tableFifteen2Button)
         tableFifteen2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1578,7 +1662,7 @@ class ClassViewController: UIViewController {
         tableFifteen2TimerResetButton.layer.cornerRadius = 5
         tableFifteen2TimerResetButton.clipsToBounds = true
         tableFifteen2TimerResetButton.isHidden = true
-        view.addSubview(tableFifteen2TimerResetButton)
+        classroomView.addSubview(tableFifteen2TimerResetButton)
         tableFifteen2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
     
 //MARK: TABLE SIXTEEN
@@ -1587,14 +1671,14 @@ class ClassViewController: UIViewController {
         let tableSixteenView = UIImageView(image: tableSixteenLogo)
         tableSixteenView.clipsToBounds = true
         tableSixteenView.contentMode = .scaleToFill
-        view.addSubview(tableSixteenView)
+        classroomView.addSubview(tableSixteenView)
         tableSixteenView.translatesAutoresizingMaskIntoConstraints = false
         
         let tableSixteen2Logo = UIImage(systemName: "studentdesk")!.withRenderingMode(.alwaysOriginal).withTintColor(UIColor(named: "AppColor3")!)
         let tableSixteen2View = UIImageView(image: tableSixteen2Logo)
         tableSixteen2View.clipsToBounds = true
         tableSixteen2View.contentMode = .scaleToFill
-        view.addSubview(tableSixteen2View)
+        classroomView.addSubview(tableSixteen2View)
         tableSixteen2View.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Tabel Label
@@ -1605,7 +1689,7 @@ class ClassViewController: UIViewController {
         tableSixteenLabel.layer.cornerRadius = 15
         tableSixteenLabel.textAlignment = .center
         tableSixteenLabel.clipsToBounds = true
-        view.addSubview(tableSixteenLabel)
+        classroomView.addSubview(tableSixteenLabel)
         tableSixteenLabel.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1615,7 +1699,7 @@ class ClassViewController: UIViewController {
         tableSixteenTimerLabel.layer.cornerRadius = 15
         tableSixteenTimerLabel.textAlignment = .center
         tableSixteenTimerLabel.clipsToBounds = true
-        view.addSubview(tableSixteenTimerLabel)
+        classroomView.addSubview(tableSixteenTimerLabel)
         tableSixteenTimerLabel.isHidden = true
         tableSixteenTimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1626,7 +1710,7 @@ class ClassViewController: UIViewController {
         tableSixteenButton.layer.cornerRadius = 5
         tableSixteenButton.clipsToBounds = true
         tableSixteenButton.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableSixteenButton)
+        classroomView.addSubview(tableSixteenButton)
         tableSixteenButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1636,7 +1720,7 @@ class ClassViewController: UIViewController {
         tableSixteenTimerResetButton.layer.cornerRadius = 5
         tableSixteenTimerResetButton.clipsToBounds = true
         tableSixteenTimerResetButton.isHidden = true
-        view.addSubview(tableSixteenTimerResetButton)
+        classroomView.addSubview(tableSixteenTimerResetButton)
         tableSixteenTimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Label
@@ -1646,7 +1730,7 @@ class ClassViewController: UIViewController {
         tableSixteen2TimerLabel.layer.cornerRadius = 15
         tableSixteen2TimerLabel.textAlignment = .center
         tableSixteen2TimerLabel.clipsToBounds = true
-        view.addSubview(tableSixteen2TimerLabel)
+        classroomView.addSubview(tableSixteen2TimerLabel)
         tableSixteen2TimerLabel.isHidden = true
         tableSixteen2TimerLabel.translatesAutoresizingMaskIntoConstraints = false
     
@@ -1657,7 +1741,7 @@ class ClassViewController: UIViewController {
         tableSixteen2Button.layer.cornerRadius = 5
         tableSixteen2Button.clipsToBounds = true
         tableSixteen2Button.backgroundColor = UIColor(white: 100, alpha: 0.005)
-        view.addSubview(tableSixteen2Button)
+        classroomView.addSubview(tableSixteen2Button)
         tableSixteen2Button.translatesAutoresizingMaskIntoConstraints = false
         
         //MARK: Timer Reset Button
@@ -1667,7 +1751,7 @@ class ClassViewController: UIViewController {
         tableSixteen2TimerResetButton.layer.cornerRadius = 5
         tableSixteen2TimerResetButton.clipsToBounds = true
         tableSixteen2TimerResetButton.isHidden = true
-        view.addSubview(tableSixteen2TimerResetButton)
+        classroomView.addSubview(tableSixteen2TimerResetButton)
         tableSixteen2TimerResetButton.translatesAutoresizingMaskIntoConstraints = false
         
 
@@ -1676,22 +1760,22 @@ class ClassViewController: UIViewController {
             
             
             //MARK: Table One Constraints
-            tableOneView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20),
-            tableOneView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableOneView.leftAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 20),
+            tableOneView.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableOneView.widthAnchor.constraint(equalToConstant: 100),
             tableOneView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableOneLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableOneLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableOneLabel.topAnchor.constraint(equalTo: tableOneView.bottomAnchor, constant: -10),
             tableOneLabel.widthAnchor.constraint(equalToConstant: 225),
             tableOneLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableOneTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableOneTimerLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableOneTimerLabel.topAnchor.constraint(equalTo: tableOneLabel.bottomAnchor, constant: -10),
             tableOneTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableOneTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableOneButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableOneButton.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableOneButton.topAnchor.constraint(equalTo: tableOneLabel.bottomAnchor, constant: -10),
             tableOneButton.widthAnchor.constraint(equalToConstant: 225),
             tableOneButton.heightAnchor.constraint(equalToConstant: 25),
@@ -1702,16 +1786,16 @@ class ClassViewController: UIViewController {
             tableOneTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             tableOne2View.leftAnchor.constraint(equalTo: tableOneView.rightAnchor, constant: 10),
-            tableOne2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableOne2View.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableOne2View.widthAnchor.constraint(equalToConstant: 100),
             tableOne2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableOne2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableOne2TimerLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableOne2TimerLabel.topAnchor.constraint(equalTo: tableOneButton.bottomAnchor, constant: -10),
             tableOne2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableOne2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableOne2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableOne2Button.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableOne2Button.topAnchor.constraint(equalTo: tableOneButton.bottomAnchor, constant: 5),
             tableOne2Button.widthAnchor.constraint(equalToConstant: 225),
             tableOne2Button.heightAnchor.constraint(equalToConstant: 25),
@@ -1722,22 +1806,22 @@ class ClassViewController: UIViewController {
             tableOne2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Two Constraints
-            tableTwoView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20),
+            tableTwoView.leftAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 20),
             tableTwoView.topAnchor.constraint(equalTo: tableOne2Button.bottomAnchor, constant: 5),
             tableTwoView.widthAnchor.constraint(equalToConstant: 100),
             tableTwoView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTwoLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableTwoLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableTwoLabel.topAnchor.constraint(equalTo: tableTwoView.bottomAnchor, constant: -10),
             tableTwoLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwoLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableTwoTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableTwoTimerLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableTwoTimerLabel.topAnchor.constraint(equalTo: tableTwoLabel.bottomAnchor, constant: -10),
             tableTwoTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwoTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTwoButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableTwoButton.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableTwoButton.topAnchor.constraint(equalTo: tableTwoLabel.bottomAnchor, constant: -10),
             tableTwoButton.widthAnchor.constraint(equalToConstant: 225),
             tableTwoButton.heightAnchor.constraint(equalToConstant: 25),
@@ -1752,12 +1836,12 @@ class ClassViewController: UIViewController {
             tableTwo2View.widthAnchor.constraint(equalToConstant: 100),
             tableTwo2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableTwo2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableTwo2TimerLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableTwo2TimerLabel.topAnchor.constraint(equalTo: tableTwoButton.bottomAnchor, constant: 5),
             tableTwo2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableTwo2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableTwo2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableTwo2Button.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableTwo2Button.topAnchor.constraint(equalTo: tableTwoButton.bottomAnchor, constant: 5),
             tableTwo2Button.widthAnchor.constraint(equalToConstant: 225),
             tableTwo2Button.heightAnchor.constraint(equalToConstant: 25),
@@ -1768,22 +1852,22 @@ class ClassViewController: UIViewController {
             tableTwo2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Three Constraints
-            tableThreeView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20),
+            tableThreeView.leftAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 20),
             tableThreeView.topAnchor.constraint(equalTo: tableTwo2TimerLabel.bottomAnchor, constant: 5),
             tableThreeView.widthAnchor.constraint(equalToConstant: 100),
             tableThreeView.heightAnchor.constraint(equalToConstant: 100),
             
-            tableThreeLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableThreeLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableThreeLabel.topAnchor.constraint(equalTo: tableThreeView.bottomAnchor, constant: -10),
             tableThreeLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThreeLabel.heightAnchor.constraint(equalToConstant: 50),
             
-            tableThreeTimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableThreeTimerLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableThreeTimerLabel.topAnchor.constraint(equalTo: tableThreeLabel.bottomAnchor, constant: -10),
             tableThreeTimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThreeTimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableThreeButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableThreeButton.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableThreeButton.topAnchor.constraint(equalTo: tableThreeLabel.bottomAnchor, constant: -10),
             tableThreeButton.widthAnchor.constraint(equalToConstant: 225),
             tableThreeButton.heightAnchor.constraint(equalToConstant: 25),
@@ -1798,12 +1882,12 @@ class ClassViewController: UIViewController {
             tableThree2View.widthAnchor.constraint(equalToConstant: 100),
             tableThree2View.heightAnchor.constraint(equalToConstant: 100),
             
-            tableThree2TimerLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableThree2TimerLabel.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableThree2TimerLabel.topAnchor.constraint(equalTo: tableThreeButton.bottomAnchor, constant: 5),
             tableThree2TimerLabel.widthAnchor.constraint(equalToConstant: 225),
             tableThree2TimerLabel.heightAnchor.constraint(equalToConstant: 25),
             
-            tableThree2Button.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 125),
+            tableThree2Button.centerXAnchor.constraint(equalTo: classroomView.leftAnchor, constant: 125),
             tableThree2Button.topAnchor.constraint(equalTo: tableThreeButton.bottomAnchor, constant: 5),
             tableThree2Button.widthAnchor.constraint(equalToConstant: 225),
             tableThree2Button.heightAnchor.constraint(equalToConstant: 25),
@@ -1815,7 +1899,7 @@ class ClassViewController: UIViewController {
             
             //MARK: Table Four Constraints
             tableFourView.leftAnchor.constraint(equalTo: tableOne2View.rightAnchor, constant: 50),
-            tableFourView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableFourView.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableFourView.widthAnchor.constraint(equalToConstant: 100),
             tableFourView.heightAnchor.constraint(equalToConstant: 100),
             
@@ -1840,7 +1924,7 @@ class ClassViewController: UIViewController {
             tableFourTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             tableFour2View.leftAnchor.constraint(equalTo: tableFourView.rightAnchor, constant: 10),
-            tableFour2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableFour2View.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableFour2View.widthAnchor.constraint(equalToConstant: 100),
             tableFour2View.heightAnchor.constraint(equalToConstant: 100),
             
@@ -2044,8 +2128,8 @@ class ClassViewController: UIViewController {
             tableEight2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Nine Constraints
-            tableNineView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
-            tableNineView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableNineView.rightAnchor.constraint(equalTo: classroomView.rightAnchor, constant: -20),
+            tableNineView.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableNineView.widthAnchor.constraint(equalToConstant: 100),
             tableNineView.heightAnchor.constraint(equalToConstant: 100),
             
@@ -2070,7 +2154,7 @@ class ClassViewController: UIViewController {
             tableNineTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             tableNine2View.rightAnchor.constraint(equalTo: tableNineView.leftAnchor, constant: -10),
-            tableNine2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableNine2View.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableNine2View.widthAnchor.constraint(equalToConstant: 100),
             tableNine2View.heightAnchor.constraint(equalToConstant: 100),
             
@@ -2090,7 +2174,7 @@ class ClassViewController: UIViewController {
             tableNine2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Ten Constraints
-            tableTenView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
+            tableTenView.rightAnchor.constraint(equalTo: classroomView.rightAnchor, constant: -20),
             tableTenView.topAnchor.constraint(equalTo: tableNine2Button.bottomAnchor, constant: 5),
             tableTenView.widthAnchor.constraint(equalToConstant: 100),
             tableTenView.heightAnchor.constraint(equalToConstant: 100),
@@ -2136,7 +2220,7 @@ class ClassViewController: UIViewController {
             tableTen2TimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             //MARK: Table Eleven Constraints
-            tableElevenView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
+            tableElevenView.rightAnchor.constraint(equalTo: classroomView.rightAnchor, constant: -20),
             tableElevenView.topAnchor.constraint(equalTo: tableTen2Button.bottomAnchor, constant: 5),
             tableElevenView.widthAnchor.constraint(equalToConstant: 100),
             tableElevenView.heightAnchor.constraint(equalToConstant: 100),
@@ -2183,7 +2267,7 @@ class ClassViewController: UIViewController {
             
             //MARK: Table Twelve Constraints
             tableTwelveView.rightAnchor.constraint(equalTo: tableNine2View.leftAnchor, constant: -50),
-            tableTwelveView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableTwelveView.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableTwelveView.widthAnchor.constraint(equalToConstant: 100),
             tableTwelveView.heightAnchor.constraint(equalToConstant: 100),
             
@@ -2208,7 +2292,7 @@ class ClassViewController: UIViewController {
             tableTwelveTimerResetButton.heightAnchor.constraint(equalToConstant: 20),
             
             tableTwelve2View.rightAnchor.constraint(equalTo: tableTwelveView.leftAnchor, constant: -10),
-            tableTwelve2View.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -10),
+            tableTwelve2View.topAnchor.constraint(equalTo: classroomView.topAnchor, constant: 0),
             tableTwelve2View.widthAnchor.constraint(equalToConstant: 100),
             tableTwelve2View.heightAnchor.constraint(equalToConstant: 100),
             
@@ -2415,7 +2499,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeOne = alert?.textFields![0].text ?? ""
+            self.timeOne = alert?.textFields?.first?.text ?? ""
             self.tableOneTimerLabel.isHidden = false
             self.tableOneTimerResetButton.isHidden = false
             self.tableOneButton.isHidden = true
@@ -2433,48 +2517,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelOneFunction(){
-        var seconds_text = 60
-        timerOnelabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeOne)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 1 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerOnelabel.invalidate()
-                self.tableOneTimerLabel.text = "00:00"
-                self.tableOneTimerLabel.isHidden = true
-                self.tableOneTimerResetButton.isHidden = true
-                self.tableOneButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOneTimerLabel.text = "Öğrenci 1: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOneTimerLabel.text = "Öğrenci 1: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOneTimerLabel.text = "Öğrenci 1: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOneTimerLabel.text = "Öğrenci 1: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelOneFunction() {
+        timerOnelabel.invalidate()
+        timerOnelabel = startCountdown(minutesText: timeOne, label: tableOneTimerLabel, resetButton: tableOneTimerResetButton, startButton: tableOneButton, student: 1)
     }
     
     @objc func timerOne2Action() {
@@ -2484,7 +2529,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeOne2 = alert?.textFields![0].text ?? ""
+            self.timeOne2 = alert?.textFields?.first?.text ?? ""
             self.tableOne2TimerLabel.isHidden = false
             self.tableOne2TimerResetButton.isHidden = false
             self.tableOne2Button.isHidden = true
@@ -2502,48 +2547,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelOne2Function(){
-        var seconds_text = 60
-        timerOne2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeOne2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 2 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerOne2label.invalidate()
-                self.tableOne2TimerLabel.text = "00:00"
-                self.tableOne2TimerLabel.isHidden = true
-                self.tableOne2TimerResetButton.isHidden = true
-                self.tableOne2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOne2TimerLabel.text = "Öğrenci 2: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOne2TimerLabel.text = "Öğrenci 2: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOne2TimerLabel.text = "Öğrenci 2: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableOne2TimerLabel.text = "Öğrenci 2: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelOne2Function() {
+        timerOne2label.invalidate()
+        timerOne2label = startCountdown(minutesText: timeOne2, label: tableOne2TimerLabel, resetButton: tableOne2TimerResetButton, startButton: tableOne2Button, student: 2)
     }
     
     @objc func timerTwoAction() {
@@ -2553,7 +2559,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTwo = alert?.textFields![0].text ?? ""
+            self.timeTwo = alert?.textFields?.first?.text ?? ""
             self.tableTwoTimerLabel.isHidden = false
             self.tableTwoTimerResetButton.isHidden = false
             self.tableTwoButton.isHidden = true
@@ -2571,48 +2577,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelTwoFunction(){
-        var seconds_text = 60
-        timerTwolabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeTwo)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 3 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerTwolabel.invalidate()
-                self.tableTwoTimerLabel.text = "00:00"
-                self.tableTwoTimerLabel.isHidden = true
-                self.tableTwoTimerResetButton.isHidden = true
-                self.tableTwoButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwoTimerLabel.text = "Öğrenci 3: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwoTimerLabel.text = "Öğrenci 3: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwoTimerLabel.text = "Öğrenci 3: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwoTimerLabel.text = "Öğrenci 3: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelTwoFunction() {
+        timerTwolabel.invalidate()
+        timerTwolabel = startCountdown(minutesText: timeTwo, label: tableTwoTimerLabel, resetButton: tableTwoTimerResetButton, startButton: tableTwoButton, student: 3)
     }
     
     @objc func timerTwo2Action() {
@@ -2622,7 +2589,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTwo2 = alert?.textFields![0].text ?? ""
+            self.timeTwo2 = alert?.textFields?.first?.text ?? ""
             self.tableTwo2TimerLabel.isHidden = false
             self.tableTwo2TimerResetButton.isHidden = false
             self.tableTwo2Button.isHidden = true
@@ -2640,48 +2607,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelTwo2Function(){
-        var seconds_text = 60
-        timerTwo2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeTwo2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 4 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerTwo2label.invalidate()
-                self.tableTwo2TimerLabel.text = "00:00"
-                self.tableTwo2TimerLabel.isHidden = true
-                self.tableTwo2TimerResetButton.isHidden = true
-                self.tableTwo2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwo2TimerLabel.text = "Öğrenci 4: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwo2TimerLabel.text = "Öğrenci 4: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwo2TimerLabel.text = "Öğrenci 4: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwo2TimerLabel.text = "Öğrenci 4: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelTwo2Function() {
+        timerTwo2label.invalidate()
+        timerTwo2label = startCountdown(minutesText: timeTwo2, label: tableTwo2TimerLabel, resetButton: tableTwo2TimerResetButton, startButton: tableTwo2Button, student: 4)
     }
     
     @objc func timerThreeAction() {
@@ -2691,7 +2619,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeThree = alert?.textFields![0].text ?? ""
+            self.timeThree = alert?.textFields?.first?.text ?? ""
             self.tableThreeTimerLabel.isHidden = false
             self.tableThreeTimerResetButton.isHidden = false
             self.tableThreeButton.isHidden = true
@@ -2709,48 +2637,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelThreeFunction(){
-        var seconds_text = 60
-        timerThreelabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeThree)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 5 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerThreelabel.invalidate()
-                self.tableThreeTimerLabel.text = "00:00"
-                self.tableThreeTimerLabel.isHidden = true
-                self.tableThreeTimerResetButton.isHidden = true
-                self.tableThreeButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThreeTimerLabel.text = "Öğrenci 5: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThreeTimerLabel.text = "Öğrenci 5: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThreeTimerLabel.text = "Öğrenci 5: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThreeTimerLabel.text = "Öğrenci 5: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelThreeFunction() {
+        timerThreelabel.invalidate()
+        timerThreelabel = startCountdown(minutesText: timeThree, label: tableThreeTimerLabel, resetButton: tableThreeTimerResetButton, startButton: tableThreeButton, student: 5)
     }
     
     @objc func timerThree2Action() {
@@ -2760,7 +2649,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeThree2 = alert?.textFields![0].text ?? ""
+            self.timeThree2 = alert?.textFields?.first?.text ?? ""
             self.tableThree2TimerLabel.isHidden = false
             self.tableThree2TimerResetButton.isHidden = false
             self.tableThree2Button.isHidden = true
@@ -2778,48 +2667,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelThree2Function(){
-        var seconds_text = 60
-        timerThree2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeThree2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 6 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerThree2label.invalidate()
-                self.tableThree2TimerLabel.text = "00:00"
-                self.tableThree2TimerLabel.isHidden = true
-                self.tableThree2TimerResetButton.isHidden = true
-                self.tableThree2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThree2TimerLabel.text = "Öğrenci 6: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThree2TimerLabel.text = "Öğrenci 6: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThree2TimerLabel.text = "Öğrenci 6: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThree2TimerLabel.text = "Öğrenci 6: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelThree2Function() {
+        timerThree2label.invalidate()
+        timerThree2label = startCountdown(minutesText: timeThree2, label: tableThree2TimerLabel, resetButton: tableThree2TimerResetButton, startButton: tableThree2Button, student: 6)
     }
     
     @objc func timerFourAction() {
@@ -2829,7 +2679,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFour = alert?.textFields![0].text ?? ""
+            self.timeFour = alert?.textFields?.first?.text ?? ""
             self.tableFourTimerLabel.isHidden = false
             self.tableFourTimerResetButton.isHidden = false
             self.tableFourButton.isHidden = true
@@ -2847,48 +2697,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFourFunction(){
-        var seconds_text = 60
-        timerFourlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFour)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 7 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFourlabel.invalidate()
-                self.tableFourTimerLabel.text = "00:00"
-                self.tableFourTimerLabel.isHidden = true
-                self.tableFourTimerResetButton.isHidden = true
-                self.tableFourButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourTimerLabel.text = "Öğrenci 7: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourTimerLabel.text = "Öğrenci 7: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourTimerLabel.text = "Öğrenci 7: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourTimerLabel.text = "Öğrenci 7: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFourFunction() {
+        timerFourlabel.invalidate()
+        timerFourlabel = startCountdown(minutesText: timeFour, label: tableFourTimerLabel, resetButton: tableFourTimerResetButton, startButton: tableFourButton, student: 7)
     }
     
     @objc func timerFour2Action() {
@@ -2898,7 +2709,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFour2 = alert?.textFields![0].text ?? ""
+            self.timeFour2 = alert?.textFields?.first?.text ?? ""
             self.tableFour2TimerLabel.isHidden = false
             self.tableFour2TimerResetButton.isHidden = false
             self.tableFour2Button.isHidden = true
@@ -2916,48 +2727,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFour2Function(){
-        var seconds_text = 60
-        timerFour2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFour2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 8 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFour2label.invalidate()
-                self.tableFour2TimerLabel.text = "00:00"
-                self.tableFour2TimerLabel.isHidden = true
-                self.tableFour2TimerResetButton.isHidden = true
-                self.tableFour2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFour2TimerLabel.text = "Öğrenci 8: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFour2TimerLabel.text = "Öğrenci 8: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFour2TimerLabel.text = "Öğrenci 8: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFour2TimerLabel.text = "Öğrenci 8: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFour2Function() {
+        timerFour2label.invalidate()
+        timerFour2label = startCountdown(minutesText: timeFour2, label: tableFour2TimerLabel, resetButton: tableFour2TimerResetButton, startButton: tableFour2Button, student: 8)
     }
     
     @objc func timerFiveAction() {
@@ -2967,7 +2739,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFive = alert?.textFields![0].text ?? ""
+            self.timeFive = alert?.textFields?.first?.text ?? ""
             self.tableFiveTimerLabel.isHidden = false
             self.tableFiveTimerResetButton.isHidden = false
             self.tableFiveButton.isHidden = true
@@ -2985,48 +2757,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFiveFunction(){
-        var seconds_text = 60
-        timerFivelabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFive)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 9 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFivelabel.invalidate()
-                self.tableFiveTimerLabel.text = "00:00"
-                self.tableFiveTimerLabel.isHidden = true
-                self.tableFiveTimerResetButton.isHidden = true
-                self.tableFiveButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFiveTimerLabel.text = "Öğrenci 9: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFiveTimerLabel.text = "Öğrenci 9: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFiveTimerLabel.text = "Öğrenci 9: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFiveTimerLabel.text = "Öğrenci 9: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFiveFunction() {
+        timerFivelabel.invalidate()
+        timerFivelabel = startCountdown(minutesText: timeFive, label: tableFiveTimerLabel, resetButton: tableFiveTimerResetButton, startButton: tableFiveButton, student: 9)
     }
     
     @objc func timerFive2Action() {
@@ -3036,7 +2769,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFive2 = alert?.textFields![0].text ?? ""
+            self.timeFive2 = alert?.textFields?.first?.text ?? ""
             self.tableFive2TimerLabel.isHidden = false
             self.tableFive2TimerResetButton.isHidden = false
             self.tableFive2Button.isHidden = true
@@ -3054,48 +2787,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFive2Function(){
-        var seconds_text = 60
-        timerFive2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFive2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 10 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFive2label.invalidate()
-                self.tableFive2TimerLabel.text = "00:00"
-                self.tableFive2TimerLabel.isHidden = true
-                self.tableFive2TimerResetButton.isHidden = true
-                self.tableFive2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFive2TimerLabel.text = "Öğrenci 10: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFive2TimerLabel.text = "Öğrenci 10: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFive2TimerLabel.text = "Öğrenci 10: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFive2TimerLabel.text = "Öğrenci 10: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFive2Function() {
+        timerFive2label.invalidate()
+        timerFive2label = startCountdown(minutesText: timeFive2, label: tableFive2TimerLabel, resetButton: tableFive2TimerResetButton, startButton: tableFive2Button, student: 10)
     }
     
     @objc func timerSixAction() {
@@ -3105,7 +2799,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeSix = alert?.textFields![0].text ?? ""
+            self.timeSix = alert?.textFields?.first?.text ?? ""
             self.tableSixTimerLabel.isHidden = false
             self.tableSixTimerResetButton.isHidden = false
             self.tableSixButton.isHidden = true
@@ -3123,48 +2817,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelSixFunction(){
-        var seconds_text = 60
-        timerSixlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeSix)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 11 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerSixlabel.invalidate()
-                self.tableSixTimerLabel.text = "00:00"
-                self.tableSixTimerLabel.isHidden = true
-                self.tableSixTimerResetButton.isHidden = true
-                self.tableSixButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixTimerLabel.text = "Öğrenci 11: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixTimerLabel.text = "Öğrenci 11: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixTimerLabel.text = "Öğrenci 11: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixTimerLabel.text = "Öğrenci 11: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelSixFunction() {
+        timerSixlabel.invalidate()
+        timerSixlabel = startCountdown(minutesText: timeSix, label: tableSixTimerLabel, resetButton: tableSixTimerResetButton, startButton: tableSixButton, student: 11)
     }
     
     @objc func timerSix2Action() {
@@ -3174,7 +2829,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeSix2 = alert?.textFields![0].text ?? ""
+            self.timeSix2 = alert?.textFields?.first?.text ?? ""
             self.tableSix2TimerLabel.isHidden = false
             self.tableSix2TimerResetButton.isHidden = false
             self.tableSix2Button.isHidden = true
@@ -3192,48 +2847,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelSix2Function(){
-        var seconds_text = 60
-        timerSix2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeSix2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 12 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerSix2label.invalidate()
-                self.tableSix2TimerLabel.text = "00:00"
-                self.tableSix2TimerLabel.isHidden = true
-                self.tableSix2TimerResetButton.isHidden = true
-                self.tableSix2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSix2TimerLabel.text = "Öğrenci 12: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSix2TimerLabel.text = "Öğrenci 12: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSix2TimerLabel.text = "Öğrenci 12: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSix2TimerLabel.text = "Öğrenci 12: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelSix2Function() {
+        timerSix2label.invalidate()
+        timerSix2label = startCountdown(minutesText: timeSix2, label: tableSix2TimerLabel, resetButton: tableSix2TimerResetButton, startButton: tableSix2Button, student: 12)
     }
     
     @objc func timerSevenAction() {
@@ -3243,7 +2859,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeSeven = alert?.textFields![0].text ?? ""
+            self.timeSeven = alert?.textFields?.first?.text ?? ""
             self.tableSevenTimerLabel.isHidden = false
             self.tableSevenTimerResetButton.isHidden = false
             self.tableSevenButton.isHidden = true
@@ -3261,48 +2877,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelSevenFunction(){
-        var seconds_text = 60
-        timerSevenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeSeven)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 13 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerSevenlabel.invalidate()
-                self.tableSevenTimerLabel.text = "00:00"
-                self.tableSevenTimerLabel.isHidden = true
-                self.tableSevenTimerResetButton.isHidden = true
-                self.tableSevenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSevenTimerLabel.text = "Öğrenci 13: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSevenTimerLabel.text = "Öğrenci 13: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSevenTimerLabel.text = "Öğrenci 13: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSevenTimerLabel.text = "Öğrenci 13: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelSevenFunction() {
+        timerSevenlabel.invalidate()
+        timerSevenlabel = startCountdown(minutesText: timeSeven, label: tableSevenTimerLabel, resetButton: tableSevenTimerResetButton, startButton: tableSevenButton, student: 13)
     }
     
     @objc func timerSeven2Action() {
@@ -3312,7 +2889,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeSeven2 = alert?.textFields![0].text ?? ""
+            self.timeSeven2 = alert?.textFields?.first?.text ?? ""
             self.tableSeven2TimerLabel.isHidden = false
             self.tableSeven2TimerResetButton.isHidden = false
             self.tableSeven2Button.isHidden = true
@@ -3330,48 +2907,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelSeven2Function(){
-        var seconds_text = 60
-        timerSeven2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeSeven2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 14 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerSeven2label.invalidate()
-                self.tableSeven2TimerLabel.text = "00:00"
-                self.tableSeven2TimerLabel.isHidden = true
-                self.tableSeven2TimerResetButton.isHidden = true
-                self.tableSeven2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSeven2TimerLabel.text = "Öğrenci 14: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSeven2TimerLabel.text = "Öğrenci 14: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSeven2TimerLabel.text = "Öğrenci 14: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSeven2TimerLabel.text = "Öğrenci 14: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelSeven2Function() {
+        timerSeven2label.invalidate()
+        timerSeven2label = startCountdown(minutesText: timeSeven2, label: tableSeven2TimerLabel, resetButton: tableSeven2TimerResetButton, startButton: tableSeven2Button, student: 14)
     }
     
     @objc func timerEightAction() {
@@ -3381,7 +2919,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeEight = alert?.textFields![0].text ?? ""
+            self.timeEight = alert?.textFields?.first?.text ?? ""
             self.tableEightTimerLabel.isHidden = false
             self.tableEightTimerResetButton.isHidden = false
             self.tableEightButton.isHidden = true
@@ -3399,48 +2937,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelEightFunction(){
-        var seconds_text = 60
-        timerEightlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeEight)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 16 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerEightlabel.invalidate()
-                self.tableEightTimerLabel.text = "00:00"
-                self.tableEightTimerLabel.isHidden = true
-                self.tableEightTimerResetButton.isHidden = true
-                self.tableEightButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEightTimerLabel.text = "Öğrenci 16: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEightTimerLabel.text = "Öğrenci 16: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEightTimerLabel.text = "Öğrenci 16: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEightTimerLabel.text = "Öğrenci 16: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelEightFunction() {
+        timerEightlabel.invalidate()
+        timerEightlabel = startCountdown(minutesText: timeEight, label: tableEightTimerLabel, resetButton: tableEightTimerResetButton, startButton: tableEightButton, student: 15)
     }
     
     @objc func timerEight2Action() {
@@ -3450,7 +2949,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeEight2 = alert?.textFields![0].text ?? ""
+            self.timeEight2 = alert?.textFields?.first?.text ?? ""
             self.tableEight2TimerLabel.isHidden = false
             self.tableEight2TimerResetButton.isHidden = false
             self.tableEight2Button.isHidden = true
@@ -3468,48 +2967,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelEight2Function(){
-        var seconds_text = 60
-        timerEight2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeEight2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 16 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerEight2label.invalidate()
-                self.tableEight2TimerLabel.text = "00:00"
-                self.tableEight2TimerLabel.isHidden = true
-                self.tableEight2TimerResetButton.isHidden = true
-                self.tableEight2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEight2TimerLabel.text = "Öğrenci 16: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEight2TimerLabel.text = "Öğrenci 16: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEight2TimerLabel.text = "Öğrenci 16: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEight2TimerLabel.text = "Öğrenci 16: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelEight2Function() {
+        timerEight2label.invalidate()
+        timerEight2label = startCountdown(minutesText: timeEight2, label: tableEight2TimerLabel, resetButton: tableEight2TimerResetButton, startButton: tableEight2Button, student: 16)
     }
     
     @objc func timerNineAction() {
@@ -3519,7 +2979,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeNine = alert?.textFields![0].text ?? ""
+            self.timeNine = alert?.textFields?.first?.text ?? ""
             self.tableNineTimerLabel.isHidden = false
             self.tableNineTimerResetButton.isHidden = false
             self.tableNineButton.isHidden = true
@@ -3537,48 +2997,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelNineFunction(){
-        var seconds_text = 60
-        timerNinelabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeNine)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 17 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerNinelabel.invalidate()
-                self.tableNineTimerLabel.text = "00:00"
-                self.tableNineTimerLabel.isHidden = true
-                self.tableNineTimerResetButton.isHidden = true
-                self.tableNineButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNineTimerLabel.text = "Öğrenci 17: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNineTimerLabel.text = "Öğrenci 17: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNineTimerLabel.text = "Öğrenci 17: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNineTimerLabel.text = "Öğrenci 17: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelNineFunction() {
+        timerNinelabel.invalidate()
+        timerNinelabel = startCountdown(minutesText: timeNine, label: tableNineTimerLabel, resetButton: tableNineTimerResetButton, startButton: tableNineButton, student: 17)
     }
     
     @objc func timerNine2Action() {
@@ -3588,7 +3009,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTen2 = alert?.textFields![0].text ?? ""
+            self.timeTen2 = alert?.textFields?.first?.text ?? ""
             self.tableTen2TimerLabel.isHidden = false
             self.tableTen2TimerResetButton.isHidden = false
             self.tableTen2Button.isHidden = true
@@ -3606,48 +3027,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelNine2Function(){
-        var seconds_text = 60
-        timerNine2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeNine2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 18 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerNine2label.invalidate()
-                self.tableNine2TimerLabel.text = "00:00"
-                self.tableNine2TimerLabel.isHidden = true
-                self.tableNine2TimerResetButton.isHidden = true
-                self.tableNine2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNine2TimerLabel.text = "Öğrenci 18: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNine2TimerLabel.text = "Öğrenci 18: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNine2TimerLabel.text = "Öğrenci 18: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableNine2TimerLabel.text = "Öğrenci 18: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelNine2Function() {
+        timerNine2label.invalidate()
+        timerNine2label = startCountdown(minutesText: timeNine2, label: tableNine2TimerLabel, resetButton: tableNine2TimerResetButton, startButton: tableNine2Button, student: 18)
     }
     
     @objc func timerTenAction() {
@@ -3657,7 +3039,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTen = alert?.textFields![0].text ?? ""
+            self.timeTen = alert?.textFields?.first?.text ?? ""
             self.tableTenTimerLabel.isHidden = false
             self.tableTenTimerResetButton.isHidden = false
             self.tableTenButton.isHidden = true
@@ -3675,48 +3057,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelTenFunction(){
-        var seconds_text = 60
-        timerTenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeTen)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 19 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerTenlabel.invalidate()
-                self.tableTenTimerLabel.text = "00:00"
-                self.tableTenTimerLabel.isHidden = true
-                self.tableTenTimerResetButton.isHidden = true
-                self.tableTenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTenTimerLabel.text = "Öğrenci 19: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTenTimerLabel.text = "Öğrenci 19: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTenTimerLabel.text = "Öğernci 19: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTenTimerLabel.text = "Öğrenci 19: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelTenFunction() {
+        timerTenlabel.invalidate()
+        timerTenlabel = startCountdown(minutesText: timeTen, label: tableTenTimerLabel, resetButton: tableTenTimerResetButton, startButton: tableTenButton, student: 19)
     }
     
     @objc func timerTen2Action() {
@@ -3726,7 +3069,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTen2 = alert?.textFields![0].text ?? ""
+            self.timeTen2 = alert?.textFields?.first?.text ?? ""
             self.tableTen2TimerLabel.isHidden = false
             self.tableTen2TimerResetButton.isHidden = false
             self.tableTen2Button.isHidden = true
@@ -3744,48 +3087,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelTen2Function(){
-        var seconds_text = 60
-        timerTen2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeTen2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 20 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerTen2label.invalidate()
-                self.tableTen2TimerLabel.text = "00:00"
-                self.tableTen2TimerLabel.isHidden = true
-                self.tableTen2TimerResetButton.isHidden = true
-                self.tableTen2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTen2TimerLabel.text = "Öğrenci 20: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTen2TimerLabel.text = "Öğrenci 20: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTen2TimerLabel.text = "Öğrenci 20: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTen2TimerLabel.text = "Öğrenci 20: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelTen2Function() {
+        timerTen2label.invalidate()
+        timerTen2label = startCountdown(minutesText: timeTen2, label: tableTen2TimerLabel, resetButton: tableTen2TimerResetButton, startButton: tableTen2Button, student: 20)
     }
     
     @objc func timerElevenAction() {
@@ -3795,7 +3099,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeEleven = alert?.textFields![0].text ?? ""
+            self.timeEleven = alert?.textFields?.first?.text ?? ""
             self.tableElevenTimerLabel.isHidden = false
             self.tableElevenTimerResetButton.isHidden = false
             self.tableElevenButton.isHidden = true
@@ -3813,48 +3117,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelElevenFunction(){
-        var seconds_text = 60
-        timerElevenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeEleven)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 21 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerElevenlabel.invalidate()
-                self.tableElevenTimerLabel.text = "00:00"
-                self.tableElevenTimerLabel.isHidden = true
-                self.tableElevenTimerResetButton.isHidden = true
-                self.tableElevenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableElevenTimerLabel.text = "\(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableElevenTimerLabel.text = "Öğrenci 21: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableElevenTimerLabel.text = "Öğrenci 21: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableElevenTimerLabel.text = "Öğrenci 21: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelElevenFunction() {
+        timerElevenlabel.invalidate()
+        timerElevenlabel = startCountdown(minutesText: timeEleven, label: tableElevenTimerLabel, resetButton: tableElevenTimerResetButton, startButton: tableElevenButton, student: 21)
     }
     
     @objc func timerEleven2Action() {
@@ -3864,7 +3129,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeEleven2 = alert?.textFields![0].text ?? ""
+            self.timeEleven2 = alert?.textFields?.first?.text ?? ""
             self.tableEleven2TimerLabel.isHidden = false
             self.tableEleven2TimerResetButton.isHidden = false
             self.tableEleven2Button.isHidden = true
@@ -3882,48 +3147,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelEleven2Function(){
-        var seconds_text = 60
-        timerEleven2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeEleven2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 22 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerEleven2label.invalidate()
-                self.tableEleven2TimerLabel.text = "00:00"
-                self.tableEleven2TimerLabel.isHidden = true
-                self.tableEleven2TimerResetButton.isHidden = true
-                self.tableEleven2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEleven2TimerLabel.text = "Öğrenci 22: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEleven2TimerLabel.text = "Öğrenci 22: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEleven2TimerLabel.text = "Öğrenci 22: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableEleven2TimerLabel.text = "Öğrenci 22: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelEleven2Function() {
+        timerEleven2label.invalidate()
+        timerEleven2label = startCountdown(minutesText: timeEleven2, label: tableEleven2TimerLabel, resetButton: tableEleven2TimerResetButton, startButton: tableEleven2Button, student: 22)
     }
     
     @objc func timerTwelveAction() {
@@ -3933,7 +3159,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTwelve = alert?.textFields![0].text ?? ""
+            self.timeTwelve = alert?.textFields?.first?.text ?? ""
             self.tableTwelveTimerLabel.isHidden = false
             self.tableTwelveTimerResetButton.isHidden = false
             self.tableTwelveButton.isHidden = true
@@ -3951,48 +3177,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelTwelveFunction(){
-        var seconds_text = 60
-        timerTwelvelabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeTwelve)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 23 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerTwelvelabel.invalidate()
-                self.tableTwelveTimerLabel.text = "00:00"
-                self.tableTwelveTimerLabel.isHidden = true
-                self.tableTwelveTimerResetButton.isHidden = true
-                self.tableTwelveButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelveTimerLabel.text = "Öğrenci 23: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelveTimerLabel.text = "Öğrenci 23: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelveTimerLabel.text = "Öğrenci 23: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelveTimerLabel.text = "Öğrenci 23: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelTwelveFunction() {
+        timerTwelvelabel.invalidate()
+        timerTwelvelabel = startCountdown(minutesText: timeTwelve, label: tableTwelveTimerLabel, resetButton: tableTwelveTimerResetButton, startButton: tableTwelveButton, student: 23)
     }
     
     @objc func timerTwelve2Action() {
@@ -4002,7 +3189,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTwelve2 = alert?.textFields![0].text ?? ""
+            self.timeTwelve2 = alert?.textFields?.first?.text ?? ""
             self.tableTwelve2TimerLabel.isHidden = false
             self.tableTwelve2TimerResetButton.isHidden = false
             self.tableTwelve2Button.isHidden = true
@@ -4020,48 +3207,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelTwelve2Function(){
-        var seconds_text = 60
-        timerTwelve2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeTwelve2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 24 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerTwelve2label.invalidate()
-                self.tableTwelve2TimerLabel.text = "00:00"
-                self.tableTwelve2TimerLabel.isHidden = true
-                self.tableTwelve2TimerResetButton.isHidden = true
-                self.tableTwelve2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelve2TimerLabel.text = "Öğrenci 24: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelve2TimerLabel.text = "Öğrenci 24: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelve2TimerLabel.text = "Öğrenci 24: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableTwelve2TimerLabel.text = "Öğrenci 24: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelTwelve2Function() {
+        timerTwelve2label.invalidate()
+        timerTwelve2label = startCountdown(minutesText: timeTwelve2, label: tableTwelve2TimerLabel, resetButton: tableTwelve2TimerResetButton, startButton: tableTwelve2Button, student: 24)
     }
     
     @objc func timerThirteenAction() {
@@ -4071,7 +3219,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeTwelve = alert?.textFields![0].text ?? ""
+            self.timeTwelve = alert?.textFields?.first?.text ?? ""
             self.tableTwelveTimerLabel.isHidden = false
             self.tableTwelveTimerResetButton.isHidden = false
             self.tableTwelveButton.isHidden = true
@@ -4089,48 +3237,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelThirteenFunction(){
-        var seconds_text = 60
-        timerThirteenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeThirteen)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 25 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerThirteenlabel.invalidate()
-                self.tableThirteenTimerLabel.text = "00:00"
-                self.tableThirteenTimerLabel.isHidden = true
-                self.tableThirteenTimerResetButton.isHidden = true
-                self.tableThirteenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteenTimerLabel.text = "Öğrenci 25: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteenTimerLabel.text = "Öğrenci 25: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteenTimerLabel.text = "Öğrenci 25: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteenTimerLabel.text = "Öğrenci 25: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelThirteenFunction() {
+        timerThirteenlabel.invalidate()
+        timerThirteenlabel = startCountdown(minutesText: timeThirteen, label: tableThirteenTimerLabel, resetButton: tableThirteenTimerResetButton, startButton: tableThirteenButton, student: 25)
     }
     
     @objc func timerThirteen2Action() {
@@ -4140,7 +3249,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeThirteen2 = alert?.textFields![0].text ?? ""
+            self.timeThirteen2 = alert?.textFields?.first?.text ?? ""
             self.tableThirteen2TimerLabel.isHidden = false
             self.tableThirteen2TimerResetButton.isHidden = false
             self.tableThirteen2Button.isHidden = true
@@ -4158,48 +3267,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelThirteen2Function(){
-        var seconds_text = 60
-        timerThirteen2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeThirteen2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 24 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerThirteen2label.invalidate()
-                self.tableThirteen2TimerLabel.text = "00:00"
-                self.tableThirteen2TimerLabel.isHidden = true
-                self.tableThirteen2TimerResetButton.isHidden = true
-                self.tableThirteen2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteen2TimerLabel.text = "Öğrenci 26: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteen2TimerLabel.text = "Öğrenci 26: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteen2TimerLabel.text = "Öğrenci 26: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableThirteen2TimerLabel.text = "Öğrenci 26: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelThirteen2Function() {
+        timerThirteen2label.invalidate()
+        timerThirteen2label = startCountdown(minutesText: timeThirteen2, label: tableThirteen2TimerLabel, resetButton: tableThirteen2TimerResetButton, startButton: tableThirteen2Button, student: 26)
     }
     
     @objc func timerFourteenAction() {
@@ -4209,7 +3279,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFourteen = alert?.textFields![0].text ?? ""
+            self.timeFourteen = alert?.textFields?.first?.text ?? ""
             self.tableFourteenTimerLabel.isHidden = false
             self.tableFourteenTimerResetButton.isHidden = false
             self.tableFourteenButton.isHidden = true
@@ -4227,48 +3297,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFourteenFunction(){
-        var seconds_text = 60
-        timerFourteenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFourteen)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 27 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFourteenlabel.invalidate()
-                self.tableFourteenTimerLabel.text = "00:00"
-                self.tableFourteenTimerLabel.isHidden = true
-                self.tableFourteenTimerResetButton.isHidden = true
-                self.tableFourteenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteenTimerLabel.text = "Öğrenci 27: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteenTimerLabel.text = "Öğrenci 27: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteenTimerLabel.text = "Öğrenci 27: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteenTimerLabel.text = "Öğrenci 27: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFourteenFunction() {
+        timerFourteenlabel.invalidate()
+        timerFourteenlabel = startCountdown(minutesText: timeFourteen, label: tableFourteenTimerLabel, resetButton: tableFourteenTimerResetButton, startButton: tableFourteenButton, student: 27)
     }
     
     @objc func timerFourteen2Action() {
@@ -4278,7 +3309,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFourteen2 = alert?.textFields![0].text ?? ""
+            self.timeFourteen2 = alert?.textFields?.first?.text ?? ""
             self.tableFourteen2TimerLabel.isHidden = false
             self.tableFourteen2TimerResetButton.isHidden = false
             self.tableFourteen2Button.isHidden = true
@@ -4296,48 +3327,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFourteen2Function(){
-        var seconds_text = 60
-        timerFourteen2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFourteen2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 28 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFourteen2label.invalidate()
-                self.tableFourteen2TimerLabel.text = "00:00"
-                self.tableFourteen2TimerLabel.isHidden = true
-                self.tableFourteen2TimerResetButton.isHidden = true
-                self.tableFourteen2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteen2TimerLabel.text = "Öğrenci 28: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteen2TimerLabel.text = "Öğrenci 28: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteen2TimerLabel.text = "Öğrenci 28: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFourteen2TimerLabel.text = "Öğrenci 28: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFourteen2Function() {
+        timerFourteen2label.invalidate()
+        timerFourteen2label = startCountdown(minutesText: timeFourteen2, label: tableFourteen2TimerLabel, resetButton: tableFourteen2TimerResetButton, startButton: tableFourteen2Button, student: 28)
     }
     
     @objc func timerFifteenAction() {
@@ -4347,7 +3339,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFifteen = alert?.textFields![0].text ?? ""
+            self.timeFifteen = alert?.textFields?.first?.text ?? ""
             self.tableFifteenTimerLabel.isHidden = false
             self.tableFifteenTimerResetButton.isHidden = false
             self.tableFifteenButton.isHidden = true
@@ -4365,48 +3357,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFifteenFunction(){
-        var seconds_text = 60
-        timerFifteenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFifteen)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 29 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFifteenlabel.invalidate()
-                self.tableFifteenTimerLabel.text = "00:00"
-                self.tableFifteenTimerLabel.isHidden = true
-                self.tableFifteenTimerResetButton.isHidden = true
-                self.tableFifteenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteenTimerLabel.text = "Öğrenci 29: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteenTimerLabel.text = "Öğrenci 29: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteenTimerLabel.text = "Öğrenci 29: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteenTimerLabel.text = "Öğrenci 29: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFifteenFunction() {
+        timerFifteenlabel.invalidate()
+        timerFifteenlabel = startCountdown(minutesText: timeFifteen, label: tableFifteenTimerLabel, resetButton: tableFifteenTimerResetButton, startButton: tableFifteenButton, student: 29)
     }
     
     @objc func timerFifteen2Action() {
@@ -4416,7 +3369,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeFifteen2 = alert?.textFields![0].text ?? ""
+            self.timeFifteen2 = alert?.textFields?.first?.text ?? ""
             self.tableFifteen2TimerLabel.isHidden = false
             self.tableFifteen2TimerResetButton.isHidden = false
             self.tableFifteen2Button.isHidden = true
@@ -4434,48 +3387,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelFifteen2Function(){
-        var seconds_text = 60
-        timerFifteen2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeFifteen2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 30 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerFifteen2label.invalidate()
-                self.tableFifteen2TimerLabel.text = "00:00"
-                self.tableFifteen2TimerLabel.isHidden = true
-                self.tableFifteen2TimerResetButton.isHidden = true
-                self.tableFifteen2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteen2TimerLabel.text = "Öğrenci 30: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteen2TimerLabel.text = "Öğrenci 30: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteen2TimerLabel.text = "Öğrenci 30: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableFifteen2TimerLabel.text = "Öğrenci 30: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelFifteen2Function() {
+        timerFifteen2label.invalidate()
+        timerFifteen2label = startCountdown(minutesText: timeFifteen2, label: tableFifteen2TimerLabel, resetButton: tableFifteen2TimerResetButton, startButton: tableFifteen2Button, student: 30)
     }
     
     @objc func timerSixteenAction() {
@@ -4485,7 +3399,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeSixteen = alert?.textFields![0].text ?? ""
+            self.timeSixteen = alert?.textFields?.first?.text ?? ""
             self.tableSixteenTimerLabel.isHidden = false
             self.tableSixteenTimerResetButton.isHidden = false
             self.tableSixteenButton.isHidden = true
@@ -4503,48 +3417,9 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelSixteenFunction(){
-        var seconds_text = 60
-        timerSixteenlabel = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeSixteen)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 31 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerSixteenlabel.invalidate()
-                self.tableSixteenTimerLabel.text = "00:00"
-                self.tableSixteenTimerLabel.isHidden = true
-                self.tableSixteenTimerResetButton.isHidden = true
-                self.tableSixteenButton.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteenTimerLabel.text = "Öğrenci 31: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteenTimerLabel.text = "Öğrenci 31: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteenTimerLabel.text = "Öğrenci 31: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteenTimerLabel.text = "Öğrenci 31: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelSixteenFunction() {
+        timerSixteenlabel.invalidate()
+        timerSixteenlabel = startCountdown(minutesText: timeSixteen, label: tableSixteenTimerLabel, resetButton: tableSixteenTimerResetButton, startButton: tableSixteenButton, student: 31)
     }
     
     @objc func timerSixteen2Action() {
@@ -4554,7 +3429,7 @@ class ClassViewController: UIViewController {
         }
         alert.addAction(UIAlertAction(title: "Vazgeç", style: UIAlertAction.Style.default, handler: nil))
         alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: { [weak alert] (_) in
-            self.timeSixteen2 = alert?.textFields![0].text ?? ""
+            self.timeSixteen2 = alert?.textFields?.first?.text ?? ""
             self.tableSixteen2TimerLabel.isHidden = false
             self.tableSixteen2TimerResetButton.isHidden = false
             self.tableSixteen2Button.isHidden = true
@@ -4572,47 +3447,8 @@ class ClassViewController: UIViewController {
     }
 
     //MARK: Timer Label Function
-    func timerLabelSixteen2Function(){
-        var seconds_text = 60
-        timerSixteen2label = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-            
-            var minutes = Int(self.timeSixteen2)!
-            
-            minutes -= 1
-            
-            if seconds_text != 0 {
-                seconds_text -= 1
-            } else {
-                seconds_text = 59
-            }
-            
-            if minutes == 0 && seconds_text == 0 {
-                let alert = UIAlertController(title: "Öğrenci 32 süresi bitti!", message: "", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                self.timerSixteen2label.invalidate()
-                self.tableSixteen2TimerLabel.text = "00:00"
-                self.tableSixteen2TimerLabel.isHidden = true
-                self.tableSixteen2TimerResetButton.isHidden = true
-                self.tableSixteen2Button.isHidden = false
-            } else if (seconds_text < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteen2TimerLabel.text = "Öğrenci 32: \(timeString):0\(secondString)"
-                
-            } else if (minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteen2TimerLabel.text = "Öğrenci 32: 0\(timeString):\(secondString)"
-            } else if (seconds_text < 10 && minutes < 10) {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteen2TimerLabel.text = "Öğrenci 32: 0\(timeString):0\(secondString)"
-            } else {
-                let timeString = String(minutes)
-                let secondString = String(seconds_text)
-                self.tableSixteen2TimerLabel.text = "Öğrenci 32: \(timeString):\(secondString)"
-            }
-        })
+    func timerLabelSixteen2Function() {
+        timerSixteen2label.invalidate()
+        timerSixteen2label = startCountdown(minutesText: timeSixteen2, label: tableSixteen2TimerLabel, resetButton: tableSixteen2TimerResetButton, startButton: tableSixteen2Button, student: 32)
     }
 }

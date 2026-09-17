@@ -16,6 +16,7 @@
 		1FFA38F92B31AF6F00F4C00C /* StudentWatchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38F82B31AF6F00F4C00C /* StudentWatchUITests.swift */; };
 		1FFA38FB2B31AF6F00F4C00C /* StudentWatchUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA38FA2B31AF6F00F4C00C /* StudentWatchUITestsLaunchTests.swift */; };
 		1FFA39082B31B14600F4C00C /* ClassOneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA39072B31B14600F4C00C /* ClassOneViewController.swift */; };
+		EFC22532E468B5080068B285 /* CountdownTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DCEF0B8DFBE8EA09D9F5793 /* CountdownTime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		1FFA38F82B31AF6F00F4C00C /* StudentWatchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentWatchUITests.swift; sourceTree = "<group>"; };
 		1FFA38FA2B31AF6F00F4C00C /* StudentWatchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentWatchUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		1FFA39072B31B14600F4C00C /* ClassOneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassOneViewController.swift; sourceTree = "<group>"; };
+		4DCEF0B8DFBE8EA09D9F5793 /* CountdownTime.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CountdownTime.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				1FFA39072B31B14600F4C00C /* ClassOneViewController.swift */,
 				1FFA38D72B31AF6E00F4C00C /* AppDelegate.swift */,
 				1FFA38D92B31AF6E00F4C00C /* SceneDelegate.swift */,
+				4DCEF0B8DFBE8EA09D9F5793 /* CountdownTime.swift */,
 			);
 			path = StudentWatch;
 			sourceTree = "<group>";
@@ -195,7 +198,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 2700;
 				TargetAttributes = {
 					1FFA38D32B31AF6E00F4C00C = {
 						CreatedOnToolsVersion = 15.1;
@@ -265,6 +268,7 @@
 				1FFA38D82B31AF6E00F4C00C /* AppDelegate.swift in Sources */,
 				1FFA38DA2B31AF6E00F4C00C /* SceneDelegate.swift in Sources */,
 				1FFA39082B31B14600F4C00C /* ClassOneViewController.swift in Sources */,
+				EFC22532E468B5080068B285 /* CountdownTime.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,7 +452,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -461,7 +465,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -482,7 +486,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -495,7 +499,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -547,6 +551,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NV57XZ3KBV;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.CanDuru.StudentWatchUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -565,6 +570,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NV57XZ3KBV;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.CanDuru.StudentWatchUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
