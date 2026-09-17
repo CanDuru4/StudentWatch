@@ -22,8 +22,8 @@ This application is currently in the development stage.
 
 ## Requirements
 
-- iOS 14.0+
-- Xcode 15.1
+- iOS 15.0+
+- Xcode 27.0 (installed build 27A5194q)
 
 ## Installation
 
@@ -38,10 +38,16 @@ No pods are required for the current version of project.
 
 ## Meta
 
-Can Duru – canduru2004@gmail.com, support@canduru.net
+Can Duru: canduru2004@gmail.com, support@canduru.net
 
 
 [https://github.com/CanDuru4](https://github.com/CanDuru4)
 
 [swift-image]:https://img.shields.io/badge/swift-5.0-orange.svg
 [swift-url]: https://swift.org/
+
+## Current compatibility
+
+The 32 student timers validate whole minutes from 1 to 1440 and calculate remaining time from a deadline, including time spent in the background. Invalid input no longer crashes the app. Timers remain in memory and do not survive app termination. The app supports iPhone and iPad. It retains its original classroom arrangement, with horizontal and vertical scrolling when a phone, smaller iPad, or window cannot fit all four desk columns.
+
+App minimum: iOS 15. Test targets require iOS 17 or later with the installed SDK. Verification evidence is recorded in the parent modernization report.

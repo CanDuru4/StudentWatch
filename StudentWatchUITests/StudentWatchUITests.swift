@@ -22,12 +22,46 @@ final class StudentWatchUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    /// Verifies the classroom timer controls remain usable after rejected input and rotation.
+    /// Invalid text must leave the first student available to start a valid timer.
+    /// - Returns: Nothing. Throws only XCTest failures.
+    /// - Example: Reject "abc", start two minutes, then reach the last student after rotation.
+    func testInvalidInputThenCountdownAndRotation() throws {
         let app = XCUIApplication()
+        XCUIDevice.shared.orientation = .portrait
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let start = app.buttons["Öğrenci 1: Süreyi Ayarla"]
+        XCTAssertTrue(start.waitForExistence(timeout: 10))
+        start.tap()
+        let input = app.alerts["Sınav Süresi"]
+        input.textFields.firstMatch.tap()
+        input.textFields.firstMatch.typeText("abc")
+        input.buttons["Tamam"].tap()
+        let invalid = app.alerts["Geçersiz süre"]
+        XCTAssertTrue(invalid.waitForExistence(timeout: 5))
+        invalid.buttons["Tamam"].tap()
+        XCTAssertTrue(start.isHittable)
+        start.tap()
+        input.textFields.firstMatch.tap()
+        input.textFields.firstMatch.typeText("2")
+        input.buttons["Tamam"].tap()
+        let countdown = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Öğrenci 1: 0")).firstMatch
+        XCTAssertTrue(countdown.waitForExistence(timeout: 5))
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(countdown.exists)
+        app.staticTexts["Sıra 1 (Öğrenci 1-2)"].tap()
+        let lastStudent = app.buttons["Öğrenci 32: Süreyi Ayarla"]
+        let classroom = app.scrollViews.firstMatch
+        for _ in 0..<3 where !lastStudent.isHittable {
+            classroom.swipeLeft()
+            classroom.swipeUp()
+        }
+        XCTAssertTrue(lastStudent.isHittable)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Classroom last student"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        XCUIDevice.shared.orientation = .portrait
     }
 
     func testLaunchPerformance() throws {
