@@ -37,7 +37,7 @@ StudentWatch (shipped under the display name E-Monitor) is an iPad and iPhone ap
 1. Clone the repository and open the project.
 
    ```bash
-   git clone https://github.com/CanDuru4/StudentWatch.git
+   git clone https://github.com/CanDuru4/student-watch.git
    open StudentWatch/StudentWatch.xcodeproj
    ```
 
